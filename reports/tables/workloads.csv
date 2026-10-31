@@ -1,0 +1,6 @@
+workload,change,data,units,segments_old,segments_new,change_share,covered_units
+W1,diarizer → manual,AMI eval,16,372.8125,468.125,0.9665077132620508,16
+W2,manual → placebo,AMI eval,16,468.125,468.125,0.9978083769479027,16
+W3,est. → known count,AMI eval,16,387.0625,372.8125,0.3290935553261174,16
+E6,manual → merge k=4,AMI eval,16,468.125,118.375,0.9993686868686869,16
+W4,windows → paragraphs,Wikipedia test,200,12.33,17.945,0.9990854933110367,197

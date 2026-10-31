@@ -1,0 +1,29 @@
+{
+ "a": "v2",
+ "b": "v2-gp231-check",
+ "version": "manual",
+ "columns": {
+  "action_item": {
+   "n": 7490,
+   "mismatches": 0
+  },
+  "question": {
+   "n": 7490,
+   "mismatches": 0
+  },
+  "entity_count": {
+   "n": 7490,
+   "mismatches": 0
+  },
+  "sentiment": {
+   "n": 7490,
+   "mismatches": 0
+  },
+  "topic": {
+   "n": 7490,
+   "mismatches": 0
+  }
+ },
+ "cells": 37450,
+ "mismatches": 0
+}

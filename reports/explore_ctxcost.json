@@ -1,0 +1,20 @@
+{
+ "manual": {
+  "calls": 37450,
+  "plain_tokens_mean": 61.38531375166889,
+  "ctx_tokens_mean": 135.37009345794394,
+  "ratio": 2.2052521227728286
+ },
+ "w1old": {
+  "calls": 29825,
+  "plain_tokens_mean": 64.48868398994132,
+  "ctx_tokens_mean": 150.83118189438392,
+  "ratio": 2.3388782738675507
+ },
+ "placebo": {
+  "calls": 37450,
+  "plain_tokens_mean": 61.41922563417891,
+  "ctx_tokens_mean": 135.4493991989319,
+  "ratio": 2.2053257396256765
+ }
+}

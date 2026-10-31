@@ -1,0 +1,26 @@
+{
+ "host": "gp231",
+ "model": "Qwen2.5-0.5B-Instruct",
+ "columns": {
+  "action_item": {
+   "n": 200,
+   "mismatch_vs_gpulab2": 0
+  },
+  "question": {
+   "n": 200,
+   "mismatch_vs_gpulab2": 0
+  },
+  "entity_count": {
+   "n": 200,
+   "mismatch_vs_gpulab2": 0
+  },
+  "sentiment": {
+   "n": 200,
+   "mismatch_vs_gpulab2": 0
+  },
+  "topic": {
+   "n": 200,
+   "mismatch_vs_gpulab2": 0
+  }
+ }
+}

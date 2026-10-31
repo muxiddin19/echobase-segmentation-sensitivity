@@ -1,0 +1,338 @@
+{
+ "workload": "w3",
+ "split": "eval",
+ "delta": 0.05,
+ "trials": 100,
+ "boot": 200,
+ "changed_cells": 10970,
+ "changed_cells_by_change": {
+  "relabel": 919,
+  "edited": 645,
+  "merge": 119,
+  "split": 151,
+  "new": 358,
+  "n:m": 2
+ },
+ "rule_share": {
+  "or-sub": 1495,
+  "hash": 5195,
+  "or-super": 253,
+  "none": 3458,
+  "sum-union": 164,
+  "sum-zero": 405
+ },
+ "mean_tokens_changed_segment": 12.381039197812216,
+ "rules": {
+  "action_item/or-sub": {
+   "n": 895,
+   "rule_err": 0.05027932960893855,
+   "majority_err": 0.05027932960893855,
+   "kappa": 0.0
+  },
+  "action_item/or-super": {
+   "n": 81,
+   "rule_err": 0.48148148148148145,
+   "majority_err": 0.4814814814814815,
+   "kappa": 0.0
+  },
+  "entity_count/sum-union": {
+   "n": 164,
+   "rule_err": 0.2073170731707317,
+   "majority_err": 0.3475609756097561,
+   "kappa": 0.6039491441153491
+  },
+  "entity_count/sum-zero": {
+   "n": 405,
+   "rule_err": 0.05925925925925926,
+   "majority_err": 0.059259259259259234,
+   "kappa": 0.0
+  },
+  "question/or-sub": {
+   "n": 600,
+   "rule_err": 0.10666666666666667,
+   "majority_err": 0.10666666666666669,
+   "kappa": 0.0
+  },
+  "question/or-super": {
+   "n": 172,
+   "rule_err": 0.2558139534883721,
+   "majority_err": 0.2558139534883721,
+   "kappa": 0.0
+  }
+ },
+ "policies": {
+  "full": {
+   "cells": 10970,
+   "call_share": 1.0,
+   "calls_mean": 10970.0,
+   "cell_error_mean": 0.0,
+   "cell_error_max": 0.0,
+   "any_stratum_violation_rate": 0.0,
+   "tokens_est": 135820.0,
+   "call_share_ci": [
+    1.0,
+    1.0
+   ],
+   "cell_error_ci": [
+    0.0,
+    0.0
+   ]
+  },
+  "hash": {
+   "cells": 10970,
+   "call_share": 0.5264357338195077,
+   "calls_mean": 5775.0,
+   "cell_error_mean": 0.0,
+   "cell_error_max": 0.0,
+   "any_stratum_violation_rate": 0.0,
+   "tokens_est": 71500.50136736555,
+   "call_share_ci": [
+    0.4841441542873863,
+    0.5574360541059263
+   ],
+   "cell_error_ci": [
+    0.0,
+    0.0
+   ]
+  },
+  "anchor_cert@0.02": {
+   "cells": 10970,
+   "call_share": 0.5264357338195077,
+   "calls_mean": 5775.0,
+   "cell_error_mean": 0.0,
+   "cell_error_max": 0.0,
+   "any_stratum_violation_rate": 0.0,
+   "tokens_est": 71500.50136736555,
+   "call_share_ci": [
+    0.4841441542873863,
+    0.5574360541059263
+   ],
+   "cell_error_ci": [
+    0.0,
+    0.0
+   ]
+  },
+  "echobase@0.02": {
+   "cells": 10970,
+   "call_share": 0.5264357338195077,
+   "calls_mean": 5775.0,
+   "cell_error_mean": 0.0,
+   "cell_error_max": 0.0,
+   "any_stratum_violation_rate": 0.0,
+   "tokens_est": 71500.50136736555,
+   "call_share_ci": [
+    0.4841441542873863,
+    0.5574360541059263
+   ],
+   "cell_error_ci": [
+    0.0,
+    0.0
+   ]
+  },
+  "echobase_conf@0.02": {
+   "cells": 10970,
+   "call_share": 0.5264357338195077,
+   "calls_mean": 5775.0,
+   "cell_error_mean": 0.0,
+   "cell_error_max": 0.0,
+   "any_stratum_violation_rate": 0.0,
+   "tokens_est": 71500.50136736555,
+   "call_share_ci": [
+    0.4841441542873863,
+    0.5574360541059263
+   ],
+   "cell_error_ci": [
+    0.0,
+    0.0
+   ]
+  },
+  "anchor_cert@0.05": {
+   "cells": 10970,
+   "call_share": 0.5264357338195077,
+   "calls_mean": 5775.0,
+   "cell_error_mean": 0.0,
+   "cell_error_max": 0.0,
+   "any_stratum_violation_rate": 0.0,
+   "tokens_est": 71500.50136736555,
+   "call_share_ci": [
+    0.4841441542873863,
+    0.5574360541059263
+   ],
+   "cell_error_ci": [
+    0.0,
+    0.0
+   ]
+  },
+  "echobase@0.05": {
+   "cells": 10970,
+   "call_share": 0.5264357338195077,
+   "calls_mean": 5775.0,
+   "cell_error_mean": 0.0,
+   "cell_error_max": 0.0,
+   "any_stratum_violation_rate": 0.0,
+   "tokens_est": 71500.50136736555,
+   "call_share_ci": [
+    0.4841441542873863,
+    0.5573639159346397
+   ],
+   "cell_error_ci": [
+    0.0,
+    0.000172634576735767
+   ]
+  },
+  "echobase_conf@0.05": {
+   "cells": 10970,
+   "call_share": 0.5231668185961714,
+   "calls_mean": 5739.14,
+   "cell_error_mean": 7.383773928896992e-05,
+   "cell_error_max": 0.00027347310847766635,
+   "any_stratum_violation_rate": 0.0,
+   "tokens_est": 71056.517301732,
+   "call_share_ci": [
+    0.48335487655686815,
+    0.5531779865798542
+   ],
+   "cell_error_ci": [
+    0.0,
+    0.0001983748716377019
+   ]
+  },
+  "anchor_cert@0.1": {
+   "cells": 10970,
+   "call_share": 0.5264357338195077,
+   "calls_mean": 5775.0,
+   "cell_error_mean": 0.0,
+   "cell_error_max": 0.0,
+   "any_stratum_violation_rate": 0.0,
+   "tokens_est": 71500.50136736555,
+   "call_share_ci": [
+    0.48031456259935035,
+    0.5574360541059263
+   ],
+   "cell_error_ci": [
+    0.0,
+    0.0
+   ]
+  },
+  "echobase@0.1": {
+   "cells": 10970,
+   "call_share": 0.4757082953509572,
+   "calls_mean": 5218.52,
+   "cell_error_mean": 0.0027684594348222425,
+   "cell_error_max": 0.005013673655423883,
+   "any_stratum_violation_rate": 0.0,
+   "tokens_est": 64610.70067456701,
+   "call_share_ci": [
+    0.4385543650447863,
+    0.5069331182164858
+   ],
+   "cell_error_ci": [
+    0.0005451137842730874,
+    0.0051946060274008525
+   ]
+  },
+  "echobase_conf@0.1": {
+   "cells": 10970,
+   "call_share": 0.4935806745670009,
+   "calls_mean": 5414.58,
+   "cell_error_mean": 0.0014694621695533275,
+   "cell_error_max": 0.0032816773017319964,
+   "any_stratum_violation_rate": 0.0,
+   "tokens_est": 67038.12721969007,
+   "call_share_ci": [
+    0.4517211567502265,
+    0.5258669093410208
+   ],
+   "cell_error_ci": [
+    0.0,
+    0.0034964121129621036
+   ]
+  },
+  "anchor_cert@0.15": {
+   "cells": 10970,
+   "call_share": 0.5093600729261623,
+   "calls_mean": 5587.68,
+   "cell_error_mean": 0.0022187784867821335,
+   "cell_error_max": 0.01130355515041021,
+   "any_stratum_violation_rate": 0.0,
+   "tokens_est": 69181.28510483136,
+   "call_share_ci": [
+    0.4386151841236358,
+    0.5435260331201267
+   ],
+   "cell_error_ci": [
+    0.0,
+    0.011072032031555282
+   ]
+  },
+  "echobase@0.15": {
+   "cells": 10970,
+   "call_share": 0.4312379216043756,
+   "calls_mean": 4730.68,
+   "cell_error_mean": 0.005620783956244304,
+   "cell_error_max": 0.009936189608021877,
+   "any_stratum_violation_rate": 0.0,
+   "tokens_est": 58570.7345123063,
+   "call_share_ci": [
+    0.3867884122935534,
+    0.45743756677928904
+   ],
+   "cell_error_ci": [
+    0.0028017379081208865,
+    0.00938385721583044
+   ]
+  },
+  "echobase_conf@0.15": {
+   "cells": 10970,
+   "call_share": 0.4539644484958979,
+   "calls_mean": 4979.99,
+   "cell_error_mean": 0.003843208751139471,
+   "cell_error_max": 0.009936189608021877,
+   "any_stratum_violation_rate": 0.0,
+   "tokens_est": 61657.45139471285,
+   "call_share_ci": [
+    0.40840886301267426,
+    0.4764353479193099
+   ],
+   "cell_error_ci": [
+    0.0018094990781375782,
+    0.007748956453384799
+   ]
+  }
+ },
+ "adversarial": {
+  "0.02": {
+   "strata_injected": 26,
+   "strata_total": 31,
+   "alpha_per_stratum": 0.0016129032258064516,
+   "family_violation_rate": 0.0,
+   "per_stratum_certify_rate": 0.0,
+   "nominal_delta": 0.05
+  },
+  "0.05": {
+   "strata_injected": 26,
+   "strata_total": 31,
+   "alpha_per_stratum": 0.0016129032258064516,
+   "family_violation_rate": 0.0,
+   "per_stratum_certify_rate": 0.0,
+   "nominal_delta": 0.05
+  },
+  "0.1": {
+   "strata_injected": 26,
+   "strata_total": 31,
+   "alpha_per_stratum": 0.0016129032258064516,
+   "family_violation_rate": 0.0,
+   "per_stratum_certify_rate": 0.0,
+   "nominal_delta": 0.05
+  },
+  "0.15": {
+   "strata_injected": 26,
+   "strata_total": 31,
+   "alpha_per_stratum": 0.0016129032258064516,
+   "family_violation_rate": 0.0,
+   "per_stratum_certify_rate": 0.0,
+   "nominal_delta": 0.05
+  }
+ },
+ "wall_clock_s": 327.8576080799103
+}

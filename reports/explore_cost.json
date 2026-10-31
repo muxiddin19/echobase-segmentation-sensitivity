@@ -1,0 +1,68 @@
+{
+ "manual": {
+  "segments": 7490,
+  "calls": 37450,
+  "tokens": 2298880,
+  "tokens_mean": 61.38531375166889
+ },
+ "w1old": {
+  "segments": 5965,
+  "calls": 29825,
+  "tokens": 1923375,
+  "tokens_mean": 64.48868398994132
+ },
+ "placebo": {
+  "segments": 7490,
+  "calls": 37450,
+  "tokens": 2300150,
+  "tokens_mean": 61.41922563417891
+ },
+ "w3old": {
+  "segments": 6193,
+  "calls": 30965,
+  "tokens": 1978744,
+  "tokens_mean": 63.90259970934927
+ },
+ "merge2": {
+  "segments": 3760,
+  "calls": 18800,
+  "tokens": 1391815,
+  "tokens_mean": 74.03271276595744
+ },
+ "merge4": {
+  "segments": 1894,
+  "calls": 9470,
+  "tokens": 938082,
+  "tokens_mean": 99.05828933474129
+ },
+ "merge8": {
+  "segments": 964,
+  "calls": 4820,
+  "tokens": 711897,
+  "tokens_mean": 147.69647302904565
+ },
+ "wiki/fixed": {
+  "segments": 2466,
+  "calls": 7398,
+  "tokens": 1620597,
+  "tokens_mean": 219.058799675588
+ },
+ "wiki/para": {
+  "segments": 3589,
+  "calls": 10767,
+  "tokens": 1778899,
+  "tokens_mean": 165.21770223832078
+ },
+ "wiki/fixed100": {
+  "segments": 2926,
+  "calls": 8778,
+  "tokens": 1688779,
+  "tokens_mean": 192.38767372977898
+ },
+ "wiki/fixed150": {
+  "segments": 1987,
+  "calls": 5961,
+  "tokens": 1549603,
+  "tokens_mean": 259.9568864284516
+ }
+}

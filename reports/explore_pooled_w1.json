@@ -1,0 +1,71 @@
+{
+ "workload": "w1",
+ "changed_cells": 36385,
+ "delta": 0.05,
+ "trials": 100,
+ "hash_share": 0.741651779579497,
+ "anchored_cells": 26245,
+ "anchor_error": 0.3284054105543913,
+ "eps": {
+  "0.02": {
+   "call_share": 0.7416517795794971,
+   "call_share_sd": 1.1102230246251565e-16,
+   "cell_error_mean": 0.0,
+   "cell_error_max": 0.0,
+   "column_error_mean": {
+    "action_item": 0.0,
+    "question": 0.0,
+    "entity_count": 0.0,
+    "sentiment": 0.0,
+    "topic": 0.0
+   },
+   "worst_column_error": 0.0,
+   "certified_rate": 0.0
+  },
+  "0.05": {
+   "call_share": 0.7416517795794971,
+   "call_share_sd": 1.1102230246251565e-16,
+   "cell_error_mean": 0.0,
+   "cell_error_max": 0.0,
+   "column_error_mean": {
+    "action_item": 0.0,
+    "question": 0.0,
+    "entity_count": 0.0,
+    "sentiment": 0.0,
+    "topic": 0.0
+   },
+   "worst_column_error": 0.0,
+   "certified_rate": 0.0
+  },
+  "0.1": {
+   "call_share": 0.7416517795794971,
+   "call_share_sd": 1.1102230246251565e-16,
+   "cell_error_mean": 0.0,
+   "cell_error_max": 0.0,
+   "column_error_mean": {
+    "action_item": 0.0,
+    "question": 0.0,
+    "entity_count": 0.0,
+    "sentiment": 0.0,
+    "topic": 0.0
+   },
+   "worst_column_error": 0.0,
+   "certified_rate": 0.0
+  },
+  "0.15": {
+   "call_share": 0.7416517795794971,
+   "call_share_sd": 1.1102230246251565e-16,
+   "cell_error_mean": 0.0,
+   "cell_error_max": 0.0,
+   "column_error_mean": {
+    "action_item": 0.0,
+    "question": 0.0,
+    "entity_count": 0.0,
+    "sentiment": 0.0,
+    "topic": 0.0
+   },
+   "worst_column_error": 0.0,
+   "certified_rate": 0.0
+  }
+ }
+}

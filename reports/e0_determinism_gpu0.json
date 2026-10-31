@@ -1,0 +1,48 @@
+{
+ "gpu": 0,
+ "n": 500,
+ "columns": {
+  "action_item": {
+   "1024": {
+    "label_mismatches": 0,
+    "max_margin_drift": 6.67572021484375e-05
+   },
+   "3072": {
+    "label_mismatches": 0,
+    "max_margin_drift": 5.53131103515625e-05
+   },
+   "6144": {
+    "label_mismatches": 0,
+    "max_margin_drift": 5.340576171875e-05
+   }
+  },
+  "entity_count": {
+   "1024": {
+    "label_mismatches": 0,
+    "max_margin_drift": 8.58306884765625e-05
+   },
+   "3072": {
+    "label_mismatches": 0,
+    "max_margin_drift": 6.866455078125e-05
+   },
+   "6144": {
+    "label_mismatches": 0,
+    "max_margin_drift": 6.866455078125e-05
+   }
+  },
+  "topic": {
+   "1024": {
+    "label_mismatches": 0,
+    "max_margin_drift": 0.0001220703125
+   },
+   "3072": {
+    "label_mismatches": 0,
+    "max_margin_drift": 0.0001220703125
+   },
+   "6144": {
+    "label_mismatches": 0,
+    "max_margin_drift": 0.0001354217529296875
+   }
+  }
+ }
+}

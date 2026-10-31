@@ -1,0 +1,502 @@
+{
+ "W1": {
+  "flip_rate": {
+   "action_item": 0.1629221148379761,
+   "question": 0.23114269471290505,
+   "entity_count": 0.4030471859010802,
+   "sentiment": 0.13790790221716884,
+   "topic": 0.22353610005685048
+  },
+  "flip_rate_meeting_median": {
+   "action_item": 0.16611513235163766,
+   "question": 0.23757460459397972,
+   "entity_count": 0.3717899860817877,
+   "sentiment": 0.13556407819671848,
+   "topic": 0.22937432930269608
+  },
+  "by_kind": {
+   "action_item/edited": {
+    "rate": 0.07166519434628975,
+    "words": 36224
+   },
+   "action_item/merge": {
+    "rate": 0.2419142121459524,
+    "words": 15923
+   },
+   "action_item/n:m": {
+    "rate": 0.2065695437053326,
+    "words": 7276
+   },
+   "action_item/new": {
+    "rate": 0.20890173410404625,
+    "words": 8650
+   },
+   "action_item/relabel": {
+    "rate": 0.06808510638297872,
+    "words": 2585
+   },
+   "action_item/split": {
+    "rate": 0.2941570176025701,
+    "words": 14941
+   },
+   "action_item/unchanged": {
+    "rate": 0.0,
+    "words": 2351
+   },
+   "entity_count/edited": {
+    "rate": 0.19097835689045936,
+    "words": 36224
+   },
+   "entity_count/merge": {
+    "rate": 0.5166111913584124,
+    "words": 15923
+   },
+   "entity_count/n:m": {
+    "rate": 0.6822429906542056,
+    "words": 7276
+   },
+   "entity_count/new": {
+    "rate": 0.5432369942196532,
+    "words": 8650
+   },
+   "entity_count/relabel": {
+    "rate": 0.2618955512572534,
+    "words": 2585
+   },
+   "entity_count/split": {
+    "rate": 0.666889766414564,
+    "words": 14941
+   },
+   "entity_count/unchanged": {
+    "rate": 0.0,
+    "words": 2351
+   },
+   "question/edited": {
+    "rate": 0.12287433745583039,
+    "words": 36224
+   },
+   "question/merge": {
+    "rate": 0.31727689505746404,
+    "words": 15923
+   },
+   "question/n:m": {
+    "rate": 0.30098955470038485,
+    "words": 7276
+   },
+   "question/new": {
+    "rate": 0.34901734104046245,
+    "words": 8650
+   },
+   "question/relabel": {
+    "rate": 0.0851063829787234,
+    "words": 2585
+   },
+   "question/split": {
+    "rate": 0.36122080182049393,
+    "words": 14941
+   },
+   "question/unchanged": {
+    "rate": 0.0,
+    "words": 2351
+   },
+   "sentiment/edited": {
+    "rate": 0.0743981890459364,
+    "words": 36224
+   },
+   "sentiment/merge": {
+    "rate": 0.17352257740375557,
+    "words": 15923
+   },
+   "sentiment/n:m": {
+    "rate": 0.21509070918086862,
+    "words": 7276
+   },
+   "sentiment/new": {
+    "rate": 0.20901734104046243,
+    "words": 8650
+   },
+   "sentiment/relabel": {
+    "rate": 0.0851063829787234,
+    "words": 2585
+   },
+   "sentiment/split": {
+    "rate": 0.20601030720835287,
+    "words": 14941
+   },
+   "sentiment/unchanged": {
+    "rate": 0.0,
+    "words": 2351
+   },
+   "topic/edited": {
+    "rate": 0.10840878975265017,
+    "words": 36224
+   },
+   "topic/merge": {
+    "rate": 0.27268730766815297,
+    "words": 15923
+   },
+   "topic/n:m": {
+    "rate": 0.3522539857064321,
+    "words": 7276
+   },
+   "topic/new": {
+    "rate": 0.42497109826589596,
+    "words": 8650
+   },
+   "topic/relabel": {
+    "rate": 0.09361702127659574,
+    "words": 2585
+   },
+   "topic/split": {
+    "rate": 0.3286259286527006,
+    "words": 14941
+   },
+   "topic/unchanged": {
+    "rate": 0.0,
+    "words": 2351
+   }
+  },
+  "by_length_ratio": {
+   "action_item/[0,0.5)": {
+    "rate": 0.354861015073987,
+    "words": 14462
+   },
+   "action_item/[0.5,0.8)": {
+    "rate": 0.1981891348088531,
+    "words": 11928
+   },
+   "action_item/[0.8,1.25)": {
+    "rate": 0.06289405229046338,
+    "words": 45362
+   },
+   "action_item/[1.25,2.0)": {
+    "rate": 0.17814084507042255,
+    "words": 8875
+   },
+   "action_item/[2.0,inf)": {
+    "rate": 0.32759797897036735,
+    "words": 7323
+   },
+   "entity_count/[0,0.5)": {
+    "rate": 0.7846079380445304,
+    "words": 14462
+   },
+   "entity_count/[0.5,0.8)": {
+    "rate": 0.5189470154258886,
+    "words": 11928
+   },
+   "entity_count/[0.8,1.25)": {
+    "rate": 0.1871831048013756,
+    "words": 45362
+   },
+   "entity_count/[1.25,2.0)": {
+    "rate": 0.4663661971830986,
+    "words": 8875
+   },
+   "entity_count/[2.0,inf)": {
+    "rate": 0.7211525331148436,
+    "words": 7323
+   },
+   "question/[0,0.5)": {
+    "rate": 0.4282256949246301,
+    "words": 14462
+   },
+   "question/[0.5,0.8)": {
+    "rate": 0.3038229376257545,
+    "words": 11928
+   },
+   "question/[0.8,1.25)": {
+    "rate": 0.10242052819540584,
+    "words": 45362
+   },
+   "question/[1.25,2.0)": {
+    "rate": 0.27583098591549293,
+    "words": 8875
+   },
+   "question/[2.0,inf)": {
+    "rate": 0.4667486003004233,
+    "words": 7323
+   },
+   "sentiment/[0,0.5)": {
+    "rate": 0.23454570598810676,
+    "words": 14462
+   },
+   "sentiment/[0.5,0.8)": {
+    "rate": 0.17974513749161636,
+    "words": 11928
+   },
+   "sentiment/[0.8,1.25)": {
+    "rate": 0.06986023543935453,
+    "words": 45362
+   },
+   "sentiment/[1.25,2.0)": {
+    "rate": 0.16608450704225353,
+    "words": 8875
+   },
+   "sentiment/[2.0,inf)": {
+    "rate": 0.2662843097091356,
+    "words": 7323
+   },
+   "topic/[0,0.5)": {
+    "rate": 0.4574747614437837,
+    "words": 14462
+   },
+   "topic/[0.5,0.8)": {
+    "rate": 0.2885647216633132,
+    "words": 11928
+   },
+   "topic/[0.8,1.25)": {
+    "rate": 0.08108108108108109,
+    "words": 45362
+   },
+   "topic/[1.25,2.0)": {
+    "rate": 0.2949859154929578,
+    "words": 8875
+   },
+   "topic/[2.0,inf)": {
+    "rate": 0.4514543219991807,
+    "words": 7323
+   }
+  }
+ },
+ "W2": {
+  "flip_rate": {
+   "action_item": 0.29001643662891496,
+   "question": 0.4006372008195799,
+   "entity_count": 0.6907211852385563,
+   "sentiment": 0.20806970931934343,
+   "topic": 0.4388129601693198
+  },
+  "flip_rate_meeting_median": {
+   "action_item": 0.24581104482553212,
+   "question": 0.3903437839945003,
+   "entity_count": 0.6919607681739128,
+   "sentiment": 0.19588059740951233,
+   "topic": 0.44524503370384416
+  },
+  "by_kind": {
+   "action_item/edited": {
+    "rate": 0.23064935064935066,
+    "words": 1925
+   },
+   "action_item/merge": {
+    "rate": 0.21266696683175745,
+    "words": 6663
+   },
+   "action_item/n:m": {
+    "rate": 0.2905955978175257,
+    "words": 69829
+   },
+   "action_item/new": {
+    "rate": 0.2903225806451613,
+    "words": 93
+   },
+   "action_item/split": {
+    "rate": 0.3478049728049728,
+    "words": 10296
+   },
+   "action_item/unchanged": {
+    "rate": 0.0,
+    "words": 20
+   },
+   "entity_count/edited": {
+    "rate": 0.3366233766233766,
+    "words": 1925
+   },
+   "entity_count/merge": {
+    "rate": 0.6342488368602731,
+    "words": 6663
+   },
+   "entity_count/n:m": {
+    "rate": 0.7061536038035773,
+    "words": 69829
+   },
+   "entity_count/new": {
+    "rate": 0.7204301075268817,
+    "words": 93
+   },
+   "entity_count/split": {
+    "rate": 0.6898795648795649,
+    "words": 10296
+   },
+   "entity_count/unchanged": {
+    "rate": 0.0,
+    "words": 20
+   },
+   "question/edited": {
+    "rate": 0.35168831168831166,
+    "words": 1925
+   },
+   "question/merge": {
+    "rate": 0.4059732853069188,
+    "words": 6663
+   },
+   "question/n:m": {
+    "rate": 0.39797218920505806,
+    "words": 69829
+   },
+   "question/new": {
+    "rate": 0.6021505376344086,
+    "words": 93
+   },
+   "question/split": {
+    "rate": 0.42336829836829837,
+    "words": 10296
+   },
+   "question/unchanged": {
+    "rate": 0.0,
+    "words": 20
+   },
+   "sentiment/edited": {
+    "rate": 0.13142857142857142,
+    "words": 1925
+   },
+   "sentiment/merge": {
+    "rate": 0.19135524538496174,
+    "words": 6663
+   },
+   "sentiment/n:m": {
+    "rate": 0.20835183090120152,
+    "words": 69829
+   },
+   "sentiment/new": {
+    "rate": 0.053763440860215055,
+    "words": 93
+   },
+   "sentiment/split": {
+    "rate": 0.2331002331002331,
+    "words": 10296
+   },
+   "sentiment/unchanged": {
+    "rate": 0.0,
+    "words": 20
+   },
+   "topic/edited": {
+    "rate": 0.2561038961038961,
+    "words": 1925
+   },
+   "topic/merge": {
+    "rate": 0.43884136274951224,
+    "words": 6663
+   },
+   "topic/n:m": {
+    "rate": 0.4494264560569391,
+    "words": 69829
+   },
+   "topic/new": {
+    "rate": 0.6774193548387096,
+    "words": 93
+   },
+   "topic/split": {
+    "rate": 0.39966977466977466,
+    "words": 10296
+   },
+   "topic/unchanged": {
+    "rate": 0.0,
+    "words": 20
+   }
+  },
+  "by_length_ratio": {
+   "action_item/[0,0.5)": {
+    "rate": 0.3705032897547637,
+    "words": 23406
+   },
+   "action_item/[0.5,0.8)": {
+    "rate": 0.27211655906473564,
+    "words": 11462
+   },
+   "action_item/[0.8,1.25)": {
+    "rate": 0.22437639669022166,
+    "words": 16557
+   },
+   "action_item/[1.25,2.0)": {
+    "rate": 0.27222788982186297,
+    "words": 12743
+   },
+   "action_item/[2.0,inf)": {
+    "rate": 0.2752048016870792,
+    "words": 24658
+   },
+   "entity_count/[0,0.5)": {
+    "rate": 0.8317098179953858,
+    "words": 23406
+   },
+   "entity_count/[0.5,0.8)": {
+    "rate": 0.5414412842435875,
+    "words": 11462
+   },
+   "entity_count/[0.8,1.25)": {
+    "rate": 0.4737573231865676,
+    "words": 16557
+   },
+   "entity_count/[1.25,2.0)": {
+    "rate": 0.5958565486934003,
+    "words": 12743
+   },
+   "entity_count/[2.0,inf)": {
+    "rate": 0.8209911590558845,
+    "words": 24658
+   },
+   "question/[0,0.5)": {
+    "rate": 0.4974365547295565,
+    "words": 23406
+   },
+   "question/[0.5,0.8)": {
+    "rate": 0.39844704240097717,
+    "words": 11462
+   },
+   "question/[0.8,1.25)": {
+    "rate": 0.32252219605000904,
+    "words": 16557
+   },
+   "question/[1.25,2.0)": {
+    "rate": 0.33194695126736246,
+    "words": 12743
+   },
+   "question/[2.0,inf)": {
+    "rate": 0.3977208208289399,
+    "words": 24658
+   },
+   "sentiment/[0,0.5)": {
+    "rate": 0.24489447150303342,
+    "words": 23406
+   },
+   "sentiment/[0.5,0.8)": {
+    "rate": 0.20519979061245855,
+    "words": 11462
+   },
+   "sentiment/[0.8,1.25)": {
+    "rate": 0.18566165368122245,
+    "words": 16557
+   },
+   "sentiment/[1.25,2.0)": {
+    "rate": 0.17405634465981323,
+    "words": 12743
+   },
+   "sentiment/[2.0,inf)": {
+    "rate": 0.20707275529240005,
+    "words": 24658
+   },
+   "topic/[0,0.5)": {
+    "rate": 0.5156797402375459,
+    "words": 23406
+   },
+   "topic/[0.5,0.8)": {
+    "rate": 0.39425929157215145,
+    "words": 11462
+   },
+   "topic/[0.8,1.25)": {
+    "rate": 0.28900163073020474,
+    "words": 16557
+   },
+   "topic/[1.25,2.0)": {
+    "rate": 0.3566664050851448,
+    "words": 12743
+   },
+   "topic/[2.0,inf)": {
+    "rate": 0.529604996350069,
+    "words": 24658
+   }
+  }
+ }
+}

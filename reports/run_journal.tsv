@@ -1,0 +1,62 @@
+run_id	date	experiment	arm	seed	git_sha	config	status	gpu_h	metric	value	note
+smoke/pilotA-structural/s0/run	2026-10-27	smoke	pilotA-structural	0	04c63da		launched				pid 28942 gpu 0
+run_id	date	experiment	arm	seed	git_sha	config	status	gpu_h	metric	value	note
+smoke/pilotB-lineage/s0/run	2026-10-27	smoke	pilotB-lineage	0	04c63da		launched				pid 28954 gpu 1
+smoke/pilotA-structural/s0/run	2026-10-27	smoke	pilotA-structural	0	04c63da		ok	0.0113	R_structural	7.0588235294117645	W=0.0000 share=0.189 verdict=n/a
+smoke/pilotB-lineage/s0/run	2026-10-27	smoke	pilotB-lineage	0	04c63da		ok	0.0128	units	1087	meetings=2
+prep/diar/s0/run	2026-10-27	prep	diar	0	04c63da		launched				pid 29559 gpu 0
+prep/diar/s0/run	2026-10-27	prep	diar	0	04c63da		ok	0.0019	diarized_dev_meetings	18	
+pilotA/structural/s0/run	2026-10-27	pilotA	structural	0	04c63da		launched				pid 29697 gpu 0
+pilotA/asr/s0/run	2026-10-27	pilotA	asr	0	04c63da		launched				pid 30177 gpu 0
+pilotB/labels/s0/run	2026-10-27	pilotB	labels	0	04c63da		launched				pid 30302 gpu 0
+pilotB/global/s0/run	2026-10-27	pilotB	global	0	04c63da		launched				pid 30400 gpu 0
+pilotB/lineage/s0/run	2026-10-27	pilotB	lineage	0	04c63da		launched				pid 30449 gpu 0
+pilotB/global/s1/run	2026-10-27	pilotB	global	1	04c63da		launched				pid 30517 gpu 0
+pilotB/lineage/s1/run	2026-10-27	pilotB	lineage	1	04c63da		launched				pid 30570 gpu 0
+pilotB/global/s2/run	2026-10-27	pilotB	global	2	04c63da		launched				pid 30632 gpu 0
+pilotB/lineage/s2/run	2026-10-27	pilotB	lineage	2	04c63da		launched				pid 30699 gpu 0
+pilotA/structural/s0/run	2026-10-28	pilotA	structural	0	04c63da		ok	0.151	R_structural	4.891891891891892	W=0.0000 share=0.193 verdict=PASS
+pilotA/asr/s0/run	2026-10-28	pilotA	asr	0	04c63da		ok	0.1409	R_structural	4.717444717444717	W=0.0000 share=0.182 verdict=n/a
+pilotB/labels/s0/run	2026-10-28	pilotB	labels	0	04c63da		ok	0.111	units	10312	meetings=13
+pilotB/global/s0/run	2026-10-28	pilotB	global	0	04c63da		failed				process exited without status.json
+pilotB/global/s1/run	2026-10-28	pilotB	global	1	04c63da		failed				process exited without status.json
+pilotB/global/s2/run	2026-10-28	pilotB	global	2	04c63da		failed				process exited without status.json
+pilotB/lineage/s0/run	2026-10-28	pilotB	lineage	0	04c63da		failed				process exited without status.json
+pilotB/lineage/s1/run	2026-10-28	pilotB	lineage	1	04c63da		failed				process exited without status.json
+pilotB/lineage/s2/run	2026-10-28	pilotB	lineage	2	04c63da		failed				process exited without status.json
+pilotB/global/s0/run	2026-10-28	pilotB	global	0	04c63da		launched				pid 1006 gpu 0
+pilotB/lineage/s0/run	2026-10-28	pilotB	lineage	0	04c63da		launched				pid 1137 gpu 0
+pilotB/global/s0/run	2026-10-28	pilotB	global	0	04c63da		ok		prec@1600	0.14802354724561073	viol@1600=0.010
+pilotB/lineage/s0/run	2026-10-28	pilotB	lineage	0	04c63da		ok		prec@1600	0.14721888829773971	viol@1600=0.070
+pilotB/global/s1/run	2026-10-28	pilotB	global	1	04c63da		launched				pid 1507 gpu 0
+pilotB/global/s1/run	2026-10-28	pilotB	global	1	04c63da		ok		prec@1600	0.14810403007168849	viol@1600=0.030
+pilotB/lineage/s1/run	2026-10-28	pilotB	lineage	1	04c63da		launched				pid 1879 gpu 0
+pilotB/lineage/s1/run	2026-10-28	pilotB	lineage	1	04c63da		ok		prec@1600	0.14774869865137608	viol@1600=0.080
+pilotB/global/s2/run	2026-10-28	pilotB	global	2	04c63da		launched				pid 2323 gpu 0
+pilotB/global/s2/run	2026-10-28	pilotB	global	2	04c63da		ok		prec@1600	0.14805830162879993	viol@1600=0.030
+pilotB/lineage/s2/run	2026-10-28	pilotB	lineage	2	04c63da		launched				pid 2722 gpu 0
+pilotB/lineage/s2/run	2026-10-28	pilotB	lineage	2	04c63da		ok		prec@1600	0.1473777618923649	viol@1600=0.090
+e1/w1-diar-eval+e2/score	2026-10-28	e1	w1-diar-eval+e2	core	a87e2e4		launched	0			unit e1-gpu0 on gpulab2 GPU 0: pilots.run_diar eval, then score_versions eval manual/w1old/placebo
+e1/w3-diar-eval+e3/wiki-test	2026-10-28	e1	w3-diar-eval+e3	wiki-test	a87e2e4		launched	0			unit e1-gpu1 on gpulab2 GPU 1: run_diar_v 3.1 estimated count eval, score_wiki test, then w3old after e1-gpu0
+e1/w1-diar-eval+e2/score	2026-10-28	e1	w1-diar-eval+e2	core	939a524		ok	2.77			unit e1-gpu0 17:19-20:05 KST; 16/16 eval meetings manual/w1old/placebo cached
+e1/w3-diar-eval+e3/wiki-test	2026-10-28	e1	w3-diar-eval+e3	wiki-test	939a524		ok	2.98			unit e1-gpu1 17:19-20:18 KST incl. ~0.27 h idle wait for e1-gpu0; wiki test 200/200, w3old eval 16/16
+check/determinism-eval	2026-10-28	check	determinism-eval		939a524		ok	0.02			e0_determinism --split eval --n 100 GPU0: 0 label mismatches, max margin drift 1.0e-4
+confirm/once	2026-10-28	confirm	once		939a524		ok	0			echobase.confirm run once 20:21 KST; H1/H2/H4 supported
+e4/model2-eval+wiki-test	2026-10-29	e4	model2-eval+wiki-test		fe37ed4		launched	0			unit e4-gpu0 GPU0 07:03 KST: score_versions eval manual/w1old/placebo/w3old + score_wiki test, Qwen2.5-0.5B
+e6/merge-eval	2026-10-29	e6	merge-eval		fe37ed4		launched	0			unit e6-gpu1 GPU1 07:03 KST: score_versions eval merge2/4/8, primary model
+e4/model2-eval+wiki-test	2026-10-29	e4	model2-eval+wiki-test		9c513e6		ok	0.43			e4-gpu0 07:03-07:28 KST; 4 eval versions x16 + wiki test 200, Qwen2.5-0.5B
+e6/merge-eval	2026-10-29	e6	merge-eval		9c513e6		ok	0.36			e6-gpu1 07:03-07:24 KST; merge2/4/8 x16 eval
+e5/maintenance-eval	2026-10-29	e5	maintenance-eval		9c513e6		ok	0			CPU: reports/e5_w1.json, e5_w3.json
+artifact/reproduce-check	2026-10-29	artifact	reproduce-check		d27399a		launched	0			CPU, clean copy /tmp/artcheck on gpulab2: scripts/reproduce_paper.sh recomputes all reports (incl. confirm.run) into a separate dir and diffs them against reports/; verification of the artifact, not a new analysis; outputs not used
+artifact/reproduce-check	2026-10-29	artifact	reproduce-check		0ea756f		ok	0			all 6 reports reproduce (confirmatory, e5 x2, flips identical; explore_eval x2 equal to 1e-9: set-order float sums); comparison made tolerant
+d5/3b-eval+wiki	2026-10-29	d5	3b-eval+wiki		e539bdd		launched	0			unit d5-3b, both GPUs (split fp32): determinism check, AMI eval manual/w1old/placebo, wiki test; Qwen2.5-3B-Instruct
+d5/scale-gp231	2026-10-29	d5	scale-gp231		3436328		launched	0			unit d5-scale on gp231 GPU0: diarize+score (0.5B) AMI scale meetings as audio arrives; cross-host check 0/1000 mismatches vs gpulab2
+d5/3b-eval+wiki	2026-10-29	d5	3b-eval+wiki		fc0247f		ok	4.2			d5-3b 08:02-10:09 KST on both GPUs (2.1 h x 2); 16x3 eval versions + wiki test 200; determinism 0/600
+d5/scale-gp231	2026-10-29	d5	scale-gp231		4dca30d		ok	4.7			gp231 GPU0 08:36-13:18 KST; 136/137 meetings (ES2003d audio unavailable) diarized + 0.5B-scored (manual/w1old/placebo)
+d6/phi	2026-10-29	d6	phi		9ce5029		launched	0			gpulab2 both GPUs: determinism check, AMI eval manual/w1old/placebo, wiki test; Phi-3.5-mini fp32 split
+d6/ctx	2026-10-29	d6	ctx		9ce5029		launched	0			gp231 GPU0: 1.5B context-padded (2 each side) AMI eval manual/w1old/placebo
+d6/para	2026-10-29	d6	para		9ce5029		launched	0			gp231 GPU1: paraphrased prompt, AMI eval manual, 0.5B then 1.5B
+d6/7b	2026-10-29	d6	7b		15eaded		launched	0			xvoice (.146) A100 GPU0, shared with a colleague's job (user-approved); Qwen2.5-7B bf16: check, AMI eval manual/w1old/placebo, wiki test
+d6/ctx	2026-10-29	d6	ctx		b09e871		ok	1.65			gp231 GPU0 13:33-15:12; 1.5B ctx variant, eval manual/w1old/placebo
+d6/para	2026-10-29	d6	para		b09e871		ok	0.39			gp231 GPU1 13:34-13:57; paraphrase prompt, eval manual, 0.5B and 1.5B
+d6/phi	2026-10-29	d6	phi		9355625		ok	5.3			gpulab2 both GPUs ~14:40-17:20 KST (2 OOM attempts before: budget 1536, 9GiB cap); determinism 0/600; eval 3 versions + wiki test

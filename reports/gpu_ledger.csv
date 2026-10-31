@@ -1,0 +1,20 @@
+date,experiment,run_id,gpu_h
+2026-10-27,smoke,smoke/pilotA-structural/s0/run,0.011
+2026-10-27,smoke,smoke/pilotB-lineage/s0/run,0.013
+2026-10-27,prep,prep/diar/s0/run,0.002
+2026-10-28,pilotA,pilotA/structural/s0/run,0.151
+2026-10-28,pilotA,pilotA/asr/s0/run,0.141
+2026-10-28,pilotB,pilotB/labels/s0/run,0.111
+2026-10-28,e1,e1/w1-diar-eval+e2/score,2.770
+2026-10-28,e1,e1/w3-diar-eval+e3/wiki-test,2.980
+2026-10-28,check,check/determinism-eval,0.020
+2026-10-29,e4,e4/model2-eval+wiki-test,0.430
+2026-10-29,e6,e6/merge-eval,0.360
+2026-10-29,d5,d5/3b-eval+wiki,4.200
+2026-10-29,d5,d5/scale-gp231,4.700
+2026-10-29,d6,d6/ctx,1.650
+2026-10-29,d6,d6/para,0.390
+2026-10-29,d6,d6/phi,5.300
+2026-10-29,d6,d6/7b-fp32 (xvoice A100 GPU0 shared; 15:45-22:19 KST),6.570
+2026-10-30,d7,d7/scale-1.5B+determinism+crosshost (gp231 GPU0; 10:40-17:04 KST),6.400
+2026-10-30,d7,d7/para2-4+wikisize (gp231 GPU1; 10:40-11:59 KST incl. a failed launch),1.320

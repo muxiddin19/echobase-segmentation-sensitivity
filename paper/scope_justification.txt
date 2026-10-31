@@ -1,0 +1,4 @@
+This EAB paper addresses two CFP topics: "Benchmarking, performance modeling, tuning, and testing" and "Foundation models and LLMs for data engineering", with "Data quality, curation, provenance, and workflows".
+(a) Challenge: systems store LLM outputs as tables, one row per segment of a transcript or document, and run aggregate queries on them. Segmenters (diarizers, chunkers) are revised routinely; we show that with identical words, moving boundaries changes query answers by 15-24%, the order of a mild prompt rewording.
+(b) Contributions: segmentation-keyed views, invariance and drift, with two propositions (Sec. II, VIII); a preregistered benchmark with placebo control, two domains, five scorers and all artifacts (Sec. III-VIII); view maintenance under re-segmentation (Sec. IX).
+(c) It builds on view maintenance (SIGMOD'86), provenance (ICDT'01), extraction over evolving text (Cyclex, ICDE'08) and LLM-derived views (Evaporate, PVLDB'23; LOTUS, DocETL, PVLDB'25).

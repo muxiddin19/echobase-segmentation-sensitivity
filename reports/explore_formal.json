@@ -1,0 +1,367 @@
+{
+ "monotonicity": {
+  "k2/action_item": {
+   "merged_segments": 3730,
+   "loss": 370,
+   "emergence": 112,
+   "loss_rate": 0.09919571045576407,
+   "emergence_rate": 0.030026809651474532
+  },
+  "k2/question": {
+   "merged_segments": 3730,
+   "loss": 395,
+   "emergence": 245,
+   "loss_rate": 0.10589812332439678,
+   "emergence_rate": 0.06568364611260054
+  },
+  "k4/action_item": {
+   "merged_segments": 1880,
+   "loss": 337,
+   "emergence": 104,
+   "loss_rate": 0.17925531914893617,
+   "emergence_rate": 0.05531914893617021
+  },
+  "k4/question": {
+   "merged_segments": 1880,
+   "loss": 352,
+   "emergence": 152,
+   "loss_rate": 0.18723404255319148,
+   "emergence_rate": 0.08085106382978724
+  },
+  "k8/action_item": {
+   "merged_segments": 957,
+   "loss": 236,
+   "emergence": 84,
+   "loss_rate": 0.24660397074190177,
+   "emergence_rate": 0.0877742946708464
+  },
+  "k8/question": {
+   "merged_segments": 957,
+   "loss": 208,
+   "emergence": 51,
+   "loss_rate": 0.2173458725182863,
+   "emergence_rate": 0.05329153605015674
+  }
+ },
+ "anchor_accuracy": {
+  "action_item": {
+   "n": 5249,
+   "accuracy": 0.812345208611164
+  },
+  "question": {
+   "n": 5249,
+   "accuracy": 0.6784149361783197
+  },
+  "entity_count": {
+   "n": 5249,
+   "accuracy": 0.5315298152028958
+  },
+  "sentiment": {
+   "n": 5249,
+   "accuracy": 0.8157744332253762
+  },
+  "topic": {
+   "n": 5249,
+   "accuracy": 0.5199085540102877
+  }
+ },
+ "power_curve": {
+  "0.05/-0.05": {
+   "eps": 0.05,
+   "true_error": 0.0,
+   "certify_rate": 1.0,
+   "violation_rate": 0.0,
+   "sampled_share": 0.5105432359211073,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.05/-0.04": {
+   "eps": 0.05,
+   "true_error": 0.010000000000000002,
+   "certify_rate": 1.0,
+   "violation_rate": 0.0,
+   "sampled_share": 0.6136687152930909,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.05/-0.03": {
+   "eps": 0.05,
+   "true_error": 0.020000000000000004,
+   "certify_rate": 1.0,
+   "violation_rate": 0.0,
+   "sampled_share": 0.7393203135917548,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.05/-0.02": {
+   "eps": 0.05,
+   "true_error": 0.030000000000000002,
+   "certify_rate": 1.0,
+   "violation_rate": 0.0,
+   "sampled_share": 0.8757943470557377,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.05/-0.01": {
+   "eps": 0.05,
+   "true_error": 0.04,
+   "certify_rate": 1.0,
+   "violation_rate": 0.0,
+   "sampled_share": 0.9836012751194183,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.05/+0.00": {
+   "eps": 0.05,
+   "true_error": 0.05,
+   "certify_rate": 0.3235294117647059,
+   "violation_rate": 0.0,
+   "sampled_share": 1.0,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.05/+0.01": {
+   "eps": 0.05,
+   "true_error": 0.060000000000000005,
+   "certify_rate": 0.0,
+   "violation_rate": 0.0,
+   "sampled_share": 1.0,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.05/+0.02": {
+   "eps": 0.05,
+   "true_error": 0.07,
+   "certify_rate": 0.0,
+   "violation_rate": 0.0,
+   "sampled_share": 1.0,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.05/+0.03": {
+   "eps": 0.05,
+   "true_error": 0.08,
+   "certify_rate": 0.0,
+   "violation_rate": 0.0,
+   "sampled_share": 1.0,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.05/+0.04": {
+   "eps": 0.05,
+   "true_error": 0.09,
+   "certify_rate": 0.0,
+   "violation_rate": 0.0,
+   "sampled_share": 1.0,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.05/+0.05": {
+   "eps": 0.05,
+   "true_error": 0.1,
+   "certify_rate": 0.0,
+   "violation_rate": 0.0,
+   "sampled_share": 1.0,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.10/-0.05": {
+   "eps": 0.1,
+   "true_error": 0.05,
+   "certify_rate": 1.0,
+   "violation_rate": 0.0,
+   "sampled_share": 0.6501678514250342,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.10/-0.04": {
+   "eps": 0.1,
+   "true_error": 0.060000000000000005,
+   "certify_rate": 1.0,
+   "violation_rate": 0.0,
+   "sampled_share": 0.7408725482827172,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.10/-0.03": {
+   "eps": 0.1,
+   "true_error": 0.07,
+   "certify_rate": 1.0,
+   "violation_rate": 0.0,
+   "sampled_share": 0.8457551527627988,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.10/-0.02": {
+   "eps": 0.1,
+   "true_error": 0.08,
+   "certify_rate": 0.9997058823529412,
+   "violation_rate": 0.0,
+   "sampled_share": 0.9463062335578075,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.10/-0.01": {
+   "eps": 0.1,
+   "true_error": 0.09000000000000001,
+   "certify_rate": 1.0,
+   "violation_rate": 0.0,
+   "sampled_share": 0.9930727595257817,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.10/+0.00": {
+   "eps": 0.1,
+   "true_error": 0.1,
+   "certify_rate": 0.5002941176470588,
+   "violation_rate": 0.0002941176470588235,
+   "sampled_share": 0.9993903372075773,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.10/+0.01": {
+   "eps": 0.1,
+   "true_error": 0.11,
+   "certify_rate": 0.0,
+   "violation_rate": 0.0,
+   "sampled_share": 1.0,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.10/+0.02": {
+   "eps": 0.1,
+   "true_error": 0.12000000000000001,
+   "certify_rate": 0.0002941176470588235,
+   "violation_rate": 0.0002941176470588235,
+   "sampled_share": 0.9998960190136661,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.10/+0.03": {
+   "eps": 0.1,
+   "true_error": 0.13,
+   "certify_rate": 0.0,
+   "violation_rate": 0.0,
+   "sampled_share": 1.0,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.10/+0.04": {
+   "eps": 0.1,
+   "true_error": 0.14,
+   "certify_rate": 0.0,
+   "violation_rate": 0.0,
+   "sampled_share": 1.0,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.10/+0.05": {
+   "eps": 0.1,
+   "true_error": 0.15000000000000002,
+   "certify_rate": 0.0,
+   "violation_rate": 0.0,
+   "sampled_share": 1.0,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.15/-0.05": {
+   "eps": 0.15,
+   "true_error": 0.09999999999999999,
+   "certify_rate": 1.0,
+   "violation_rate": 0.0,
+   "sampled_share": 0.7216587599647946,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.15/-0.04": {
+   "eps": 0.15,
+   "true_error": 0.10999999999999999,
+   "certify_rate": 1.0,
+   "violation_rate": 0.0,
+   "sampled_share": 0.8080196646157257,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.15/-0.03": {
+   "eps": 0.15,
+   "true_error": 0.12,
+   "certify_rate": 1.0,
+   "violation_rate": 0.0,
+   "sampled_share": 0.8931481822306234,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.15/-0.02": {
+   "eps": 0.15,
+   "true_error": 0.13,
+   "certify_rate": 1.0,
+   "violation_rate": 0.0,
+   "sampled_share": 0.9661634116933248,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.15/-0.01": {
+   "eps": 0.15,
+   "true_error": 0.13999999999999999,
+   "certify_rate": 1.0,
+   "violation_rate": 0.0,
+   "sampled_share": 0.9962808252126217,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.15/+0.00": {
+   "eps": 0.15,
+   "true_error": 0.15,
+   "certify_rate": 0.3538235294117647,
+   "violation_rate": 0.0008823529411764706,
+   "sampled_share": 0.9995137677048094,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.15/+0.01": {
+   "eps": 0.15,
+   "true_error": 0.16,
+   "certify_rate": 0.0,
+   "violation_rate": 0.0,
+   "sampled_share": 1.0,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.15/+0.02": {
+   "eps": 0.15,
+   "true_error": 0.16999999999999998,
+   "certify_rate": 0.0,
+   "violation_rate": 0.0,
+   "sampled_share": 1.0,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.15/+0.03": {
+   "eps": 0.15,
+   "true_error": 0.18,
+   "certify_rate": 0.0,
+   "violation_rate": 0.0,
+   "sampled_share": 1.0,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.15/+0.04": {
+   "eps": 0.15,
+   "true_error": 0.19,
+   "certify_rate": 0.0,
+   "violation_rate": 0.0,
+   "sampled_share": 1.0,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  },
+  "0.15/+0.05": {
+   "eps": 0.15,
+   "true_error": 0.2,
+   "certify_rate": 0.0,
+   "violation_rate": 0.0,
+   "sampled_share": 1.0,
+   "strata": 34,
+   "alpha_per_stratum": 0.001388888888888889
+  }
+ }
+}

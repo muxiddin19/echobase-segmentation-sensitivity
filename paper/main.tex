@@ -1,0 +1,722 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+\input{numbers}
+% Every number in the text is a macro from numbers.tex (paper/gen_numbers.py reads reports/*.json).
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\newcommand{\sys}{EchoBase}
+% Artifact links: set after the GitHub repository and the Zenodo release exist (before submission).
+\newcommand{\artifacturl}{\url{https://github.com/muxiddin19/echobase-segmentation-sensitivity}}
+\newcommand{\artifactdoi}{\todo{Zenodo DOI}}
+
+\begin{document}
+
+\title{[Experiment, Analysis, and Benchmark]\\ Same Words, Different Answers:\\ Segmentation Sensitivity of LLM-Derived Views}
+% Title and abstract are fixed on 2026-11-07 from frozen results (plan §10).
+
+\author{
+\IEEEauthorblockN{Mukhiddin Toshpulatov}
+\IEEEauthorblockA{\textit{Dept. of Computer Engineering}\\
+\textit{Gachon University}, Seongnam, South Korea\\
+muhiddin@gachon.ac.kr\\
+ORCID 0000-0002-8819-852X}
+\and
+\IEEEauthorblockN{Wookey Lee}
+\IEEEauthorblockA{\textit{Dept. of Industrial and Biomedical Engineering}\\
+\textit{Inha University}, South Korea\\
+trinity@inha.ac.kr\\
+ORCID 0000-0001-8586-4577}
+}
+
+\maketitle
+
+% ---------------------------------------------------------------- abstract (draft; fixed Nov 7)
+\begin{abstract}
+Data systems increasingly materialize the outputs of large language models (LLMs) as tables: one row per segment of
+a transcript or document, one column per extracted attribute, queried with ordinary aggregates. The segmentation that
+defines those rows---speaker turns from a diarizer, chunks from a document splitter---is an engineering choice that
+pipelines revise routinely. We ask whether such LLM-derived views are \emph{segmentation-invariant}: if the words stay
+exactly the same and only the segment boundaries move, do query answers stay the same? In a preregistered study (internally hash-locked) with a
+deterministic 1.5B-parameter scorer, the answer is no. Replacing diarizer turns by manual segments (a stress test) over identical
+meeting words changes the share of speech flagged as action items by a median of \nHonepct\% of its value per meeting
+(\nHoneunits{} held-out AMI meetings), a placebo that only moves boundaries changes it by \nHtwopct\%, and switching a
+document chunker changes the share of Wikipedia text flagged as dated by \nHfourpct\% (\nHfourunits{} held-out
+articles); all three preregistered hypotheses are supported by their decision rule, although for the first the
+preregistered sign test is not significant. In absolute terms these are median changes of \nSgWoneQoneabsmag,
+\nSgWtwoQoneabsmag{} and \nSgWikiQdoneabsmag{} percentage points. A small reconfiguration of the diarizer
+(exploratory) moves the meeting share by only \nWthreeQonepct\%. Post-hoc analyses with three further models (up to
+7B, two families), \nScaleN{} further meetings and human labels show that the action-item drift is of the order of the
+mildest of four prompt rewordings, that merging segments shifts aggregates in the direction of the predicate, that
+showing the scorer neighboring context does not remove the drift, and that maintaining such views by reusing the old
+row's value saves essentially nothing over exact content hashing. Segmentation is
+therefore part of an LLM-derived view's definition and must be versioned with its prompt and model. We release the
+benchmark, caches and scripts.
+\end{abstract}
+
+% ---------------------------------------------------------------- 1. Introduction (1.25 pp; Fig. 1)
+\section{Introduction}
+LLM-based extraction has become a data-management operator: systems call a model once per row and store the answer
+as a column, then answer analytical queries over the resulting table~\cite{semreuse,sivm}. When the input is
+unstructured---a meeting recording, a document collection---the \emph{rows} are not given. They are produced by an
+upstream segmenter: a speaker diarizer cuts audio into turns, a chunker cuts documents into passages. These segmenters
+are revised often (a new diarizer release, a different chunk size), and work on maintaining LLM-derived data assumes
+that rows keep their identity across revisions~\cite{semreuse,sivm,cyclex}.
+
+This paper studies what happens when they do not. We fix the content exactly---the same reference words, in the same
+order---and change only where segment boundaries fall. A view is \emph{segmentation-invariant} if its aggregate
+query answers do not change. Fig.~\ref{fig:example} shows why invariance can fail: an utterance that proposes what the
+product should have is labeled an action item as one segment but not when its last words are split off, so the
+word-weighted share of action-item speech moves even though not a single word changed.
+
+\begin{figure}[t]
+\centering
+\footnotesize
+\input{figs/example.tex}
+\caption{The same words, two segmentations, two different answers (AMI held-out meeting IS1009c, speaker B, AMI
+reference transcript). The diarizer splits off the last three words; the scorer labels neither turn as an action
+item but labels the identical words, as one manual segment, as one.}
+\label{fig:example}
+\end{figure}
+
+\paragraph*{Findings}
+In a preregistered study (hypotheses, thresholds, data splits and analysis code frozen and hash-locked before any
+held-out data were touched), with a deterministic scorer:
+\begin{enumerate}[leftmargin=*,nosep]
+\item \textbf{LLM-derived views are not segmentation-invariant.} Moving from diarizer turns to manual segments over
+identical words changes the action-item share by a median relative change of \nHonemed{} per meeting (CI
+\nHonelo--\nHonehi; a median absolute change of \nSgWoneQoneabsmag{} points; the interval reaches below the 0.10
+threshold and the preregistered sign test is not significant, so its size is uncertain). W1 compares a system's
+turns with curated ones and serves as a stress test; a small diarizer reconfiguration, the most pipeline-like change
+on meetings, moves the share by only \nWthreeQonemed{} (\nWthreeQonelo--\nWthreeQonehi, exploratory).
+\item \textbf{Moving boundaries suffices; granularity amplifies.} A placebo segmentation with the same words, segment
+count and length multiset changes the answer by \nHtwomed{} (\nHtwolo--\nHtwohi), so drift does not require
+diarization errors. Coarser segments drift further: merging $k=2,4,8$ manual segments gives \nEsixktwoQonemed,
+\nEsixkfourQonemed{} and \nEsixkeightQonemed.
+\item \textbf{The effect also appears on documents.} Changing a document chunker changes the dated-text share of Wikipedia
+articles by \nHfourmed{} (\nHfourlo--\nHfourhi); widening the window of the same chunker from 120 to 150 words
+raises it by a median \nChunkonefivezeroabs{} points (post-hoc).
+\item \textbf{Merging segments shifts aggregates in the direction of the predicate} (post-hoc). With the primary model, merging
+$k=8$ segments raises the action-item share by a median \nSgEsixkeightQoneabs{} percentage points and lowers the share
+of negative sentiment, a whole-segment judgment; cutting utterances lowers the question share for four of five
+scorers (for Phi it still rises in \nSgWtwoQtwoMphiup{} of 16 meetings), while the direction for action items depends on the model.
+\item \textbf{Stable-row maintenance does not survive re-segmentation.} When diarizer turns are replaced, reusing the
+value of the overlapping old row, even behind a certified audit, saves no LLM calls beyond exact content hashing
+(\nEWonehashshare{} of full recomputation); structural rules plus an audit reach \nEWoneechobaseepsonezeroshare{} at a
+10\% error tolerance.
+\end{enumerate}
+
+\paragraph*{Contributions}
+(i) a definition of segmentation invariance for LLM-derived views and a drift statistic over aggregate queries
+(Sec.~\ref{sec:model}); (ii) a benchmark of four re-segmentation workloads and a granularity control over two domains, with a placebo control
+that separates boundary placement from granularity (Sec.~\ref{sec:bench}); (iii) a preregistered measurement on
+held-out data (Secs.~\ref{sec:rq1}--\ref{sec:rq3}), with post-hoc analyses of larger models and another family
+(Sec.~\ref{sec:rq3}), of direction, correctness and scale (Sec.~\ref{sec:dir}), and of calibration and context
+(Sec.~\ref{sec:calib}); (iv) an analysis of what non-invariance costs view maintenance
+(Sec.~\ref{sec:rq4}); (v) \sys, the released benchmark harness: workload builders that re-segment a fixed word
+stream, a deterministic scorer with a result cache keyed by segment text, the drift statistics, the maintenance
+replay, all cached model outputs (five scorers), and scripts that regenerate every number, table and figure
+(\artifacturl, archived at \artifactdoi).
+
+% ---------------------------------------------------------------- 2. Model (1.25 pp)
+\section{Segment-Keyed LLM Views}\label{sec:model}
+\begin{definition}[Segmentation]
+Let $w = (w_1,\dots,w_n)$ be the words of a source (a meeting or a document) with speakers and times. A
+\emph{segmentation} $S$ partitions the word positions into segments $s_1,\dots,s_k$; each segment has a text (its words
+in order) and, for speech, a speaker.
+\end{definition}
+\begin{definition}[LLM-derived view]
+For a column $c$ with answer set $A_c$ and a scorer $f_c$, the view $V_c(S)$ has one row per segment $s\in S$ with value
+$f_c(\mathrm{text}(s))\in A_c$. Our scorer is deterministic: the first-token argmax over $A_c$.
+\end{definition}
+\begin{definition}[Query and drift]
+A word-weighted share query $Q_{c,a}(S) = \sum_{s\in S:\,f_c(s)=a}|s| \,/\, \sum_{s\in S}|s|$ does not depend on the
+number of segments. For two segmentations $S_{\mathrm{old}},S_{\mathrm{new}}$ of the same words, the drift of a unit
+(meeting or article) is $D = |Q(S_{\mathrm{new}}) - Q(S_{\mathrm{old}})| / Q(S_{\mathrm{old}})$, defined when
+$Q(S_{\mathrm{old}})\ge 0.02$. A view is \emph{segmentation-invariant} for $Q$ if $Q(S)$ is the same for all segmentations $S$ of $w$.
+\end{definition}
+Invariance is a strong property. For a single word stream and segmentations into contiguous segments, only trivial
+binary columns have it:
+\begin{proposition}\label{prop:trivial}
+Let $f$ be a binary column and $Q=Q_{f,\mathrm{yes}}$. $Q(S)$ is the same for every segmentation $S$ of $w$ into
+contiguous segments if and only if $f$ gives the same answer to every contiguous span of $w$.
+\end{proposition}
+\begin{proof}
+($\Leftarrow$) $Q\in\{0,1\}$ for every $S$. ($\Rightarrow$) Let $Y$ be the words labeled yes as singletons, so
+$Q(S_1)=|Y|/n$ for the all-singleton segmentation $S_1$. If $\emptyset\ne Y\ne w$, some adjacent pair $(w_i,w_{i+1})$
+has exactly one word in $Y$; merging only that pair gives $Q=(|Y|\pm1)/n\ne Q(S_1)$. If $Y=\emptyset$ and some span $s$
+is labeled yes, the segmentation with $s$ and singletons elsewhere gives $Q=|s|/n>0$; $Y=w$ is symmetric.
+\end{proof}
+For any LLM column that answers differently for different texts, some stream and some pair of segmentations
+therefore change the answer; invariance cannot be assumed. The question
+this paper answers is empirical: \emph{how much} do aggregate answers move when the segmentation changes in ways
+that occur in practice (replacing system turns by curated ones, switching or resizing a chunker, reconfiguring a diarizer) or in
+a controlled way (a placebo, a merge), and how much of that movement granularity explains? Structural rules (Sec.~\ref{sec:rq4}) are the
+special cases where a new segment's value follows from its parts, e.g., a segment whose parts are all ``no'' for a
+predicate that is monotone under concatenation.
+
+% ---------------------------------------------------------------- 3. Benchmark (1.5 pp; Tab. 1)
+\section{Benchmark}\label{sec:bench}
+\paragraph*{Data}
+AMI Meeting Corpus~\cite{ami} (Mix-Headset audio, manual annotations 1.6.2): 18 development meetings and 16 held-out
+meetings (the standard full-corpus-ASR test list). Wikipedia (English dump 2023-11-01, CC BY-SA 3.0 and GFDL): 200
+development and 200 held-out articles of 800--3,000 words, sampled with a fixed seed.
+\paragraph*{Workloads} All workloads keep the words fixed; only the segmentation changes.
+\begin{itemize}[leftmargin=*,nosep]
+\item \textbf{W1, diarizer $\to$ manual.} pyannote 3.1~\cite{pyannote} turns with the known speaker count, filled with
+the AMI reference words, versus the AMI manual segments.
+\item \textbf{W2, placebo.} From the manual segmentation, per speaker: the same word order, the same number of segments
+and the same multiset of segment lengths, with lengths shuffled (seed per meeting). Granularity is matched; only
+boundary placement moves.
+\item \textbf{W3, speaker count (exploratory).} pyannote 3.1 with an estimated versus the known speaker count.
+\item \textbf{W4, chunker.} Fixed 120-word windows versus paragraphs merged forward to at least 40 words.
+\item \textbf{E6, granularity.} Manual segments merged in windows of $k\in\{2,4,8\}$ consecutive same-speaker segments.
+\end{itemize}
+\paragraph*{Same words on both sides} Every version of a meeting is built from the same AMI reference words, so
+speech-recognition errors cannot differ between versions. A system segmentation (diarizer turns) is filled by
+assigning each reference word to the turn that overlaps its time span; system speakers are mapped to reference
+speakers by a maximum-overlap assignment. Both versions therefore contain exactly the same words in the same order,
+and they differ only in how those words are grouped. For documents, both chunkers cut the same article text.
+\paragraph*{Columns and queries} Meetings: action item and question (yes/no), entity count (0--9), sentiment (3
+labels), topic (5 labels). Documents: date mention (yes/no), entity count, topic (7 labels). Queries over meetings
+are word-weighted shares: Q1 action items (primary), Q2 questions, Q3 negative sentiment, Q4 topic = cost; plus Q5,
+the relative change of the entity sum, and Q6, the total variation distance between topic distributions. Documents
+use Qd1, the dated share of text (primary), Qd2, the entity sum, and Qd3, the topic distance. Word weighting makes the
+shares independent of how many segments a version has, so a coarser segmentation is not penalized for having fewer
+rows.
+\paragraph*{Scoring} Each cell is one model call: a system instruction naming the answer format, the column's
+question and the segment text, followed by ``Answer:''. The value is the argmax of the next-token logits restricted
+to the first tokens of the allowed answers, so there is no sampling and no parsing. The gap between the top two
+logits is kept as a confidence score. Calls are batched by length under a fixed token budget. We use
+Qwen2.5-1.5B-Instruct~\cite{qwen25} (primary) and Qwen2.5-0.5B-Instruct (second), in fp32 with pinned revisions, on
+two NVIDIA TITAN Xp (12\,GB) cards. Before the held-out runs, rescoring the same development inputs under three batch
+budgets gave identical labels; after them, rescoring \nDetN{} held-out segments under three budgets changed
+\nDetMism{} labels in the three columns checked (action item, entity count and topic). Within this setup (model, precision, hardware),
+drift is therefore a function of the segmentation, not sampling noise; determinism is not automatic, since a bf16 run
+of the 7B model failed the same check (Sec.~\ref{sec:rq3}). The 1.5B model scores \nThrBig{} segments per second on
+one card (the 0.5B model \nThrSmall); a full five-column view of the 16 held-out meetings is \nFullCalls{} calls,
+about \nFullMin{} minutes. A second model was admitted before the freeze only if its development yes-rate for the
+two binary columns lay in [0.05, 0.60], so that drift of a share is measurable; a 1.7B model from another family
+answered ``yes'' almost never (0.000 and 0.002) and was not admitted, and the planned fallback, Qwen2.5-0.5B, was. The
+post-hoc 3B model (Sec.~\ref{sec:rq3}) was not subject to this rule.
+\begin{table}[t]
+\centering\footnotesize
+\caption{Workloads on held-out data: units, mean segments per unit (old, new), share of new segments that
+changed (not matched one-to-one by an old segment of the same speaker with the same text and both boundary times
+within 50\,ms), and units whose primary-query answer on the old side passes the 0.02 guard. A changed segment can still
+have the same text as an old one, when only its times moved; content hashing reuses those.}
+\label{tab:workloads}
+\setlength{\tabcolsep}{4pt}
+\input{figs/workloads.tex}
+\end{table}
+Table~\ref{tab:workloads} summarizes the workloads. W1, W2, W4 and E6 change almost every segment; W3 changes a third.
+\paragraph*{Cost of a sensitivity test} Table~\ref{tab:cost} puts the cost of measuring each workload with the primary
+model next to the drift it reveals. Every workload costs \nCostMinMin--\nCostMinMax{} GPU-minutes on one card for
+both versions together (at most \nCostCallsMax{} calls and \nCostTokMax{}M prompt tokens), about the cost of
+materializing the view twice. A pipeline that already holds the old version pays only for the new one, and with the
+result cache keyed by segment text, identical segments are not rescored. Measuring sensitivity therefore costs one
+extra scoring pass of the view, which is the basis of the placebo test we recommend in Sec.~\ref{sec:lessons}.
+\begin{table}[t]
+\centering\footnotesize
+\caption{Cost of measuring each workload on held-out data with the primary model (one TITAN Xp, fp32): scorer calls and
+prompt tokens for both versions, GPU-minutes (min) at the measured scoring rates, and the median drift of the primary query
+(Q1 for meetings, Qd1 for documents). Window drifts take few distinct values, so the median can equal an interval end (Sec.~\ref{sec:rq3}). $^\dagger$Converted from prompt tokens at the measured rate of the Wikipedia run;
+the 100- and 150-word windows were scored on another host.}
+\label{tab:cost}
+\setlength{\tabcolsep}{3pt}
+\input{figs/cost.tex}
+\end{table}
+
+\paragraph*{Protocol} We separated exploration from confirmation. All design work used 18 development meetings and
+200 development articles. Before any held-out unit was scored, we froze the hypotheses, thresholds, unit lists,
+prompts, model revisions and analysis code in a preregistration, and recorded the SHA-256 of every file that can
+affect a score; the evaluation scripts check for a recorded freeze before touching held-out data, and the hashes were
+re-checked before the analysis. One defect was found after the hashes were first written: the freeze check accepted
+an older marker and so would not have blocked held-out runs. The fix (eight lines in four locked files, gate checks
+only) was made before it was approved, which the hash check flagged.
+It was then approved, logged as a deviation, and the hashes were re-written, before any
+held-out unit had been scored. The confirmatory family has three hypotheses, tested in the fixed sequence H1$\to$H2$\to$H4: a
+hypothesis is claimed only if all earlier ones are supported. Each uses the median drift over units with a 95\% bias-corrected and accelerated (BCa)
+bootstrap interval~\cite{bca} (10,000 resamples over units, fixed seed); it is \emph{supported} when the median
+reaches a threshold $T$ and the interval's lower end reaches $L$, \emph{refuted} when the upper end is below $T$, and
+inconclusive otherwise. Thresholds were set after the development drifts were seen, below them so that an effect of
+the development size passes: $T=0.10$ for H1 and H4 (development medians \nDevHonemed{} and \nDevHfourmed) and $T=0.05$
+for H2 (\nDevHtwomed), a minimal-effect threshold for a placebo; the development results are not evidence for the
+hypotheses. Since Proposition~\ref{prop:trivial} already rules out invariance in general, the hypotheses are claims about
+magnitude, not existence: that drift on real data reaches a size a consumer would notice; the medians and intervals
+are the result. Simulated power of the exact rules from the development units was \nPowerHone{} (H1), \nPowerHtwo{} (H2)
+and \nPowerHfour{} (H4). The analysis ran once. Two planned workloads failed their development checks before the
+freeze (a release comparison, pyannote 3.0 versus 3.1, could not run because 3.0 jobs reset our host, and a
+clustering-threshold variant of 3.1 changed only 0.4\% of segments),
+so the diarizer-revision hypothesis was dropped and W3 became exploratory; these deviations were logged before any
+held-out data were touched. All post-hoc analyses were added after the confirmatory analysis in four rounds (D5--D8;
+D8 used CPU only), each in response to a critical review of the draft by an AI assistant acting as referee, and each logged with
+its settings before it ran; they are marked ``post-hoc'' where they appear. All logs are released, except the partial
+cache of the discarded bf16 7B run, which was deleted unanalyzed, and that run's GPU time, which was not recorded. The
+hashes are an internal record (the lock file and the log of each rewrite are released), not a third-party timestamp. Everything else in this
+paper is exploratory and labeled as such.
+Table~\ref{tab:status} lists which analysis has which status.
+\begin{table}[t]
+\centering\footnotesize
+\caption{Status of every analysis. Only the confirmatory family carries decision rules; all other results are
+descriptive. D5--D8 are the logged post-hoc rounds.}
+\label{tab:status}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.2\columnwidth}>{\raggedright\arraybackslash}p{0.62\columnwidth}l@{}}
+\toprule
+status & analyses & Sec. \\
+\midrule
+confirmatory & H1 (W1), H2 (placebo), H4 (chunker); primary model, run once & \ref{sec:rq1}--\ref{sec:rq3} \\
+preregistered, exploratory & W3; queries Q2--Q6, Qd2--Qd3; Qwen2.5-0.5B; merges $k=2,4,8$; flip rates; maintenance replay & \ref{sec:rq1}--\ref{sec:rq4} \\
+post-hoc D5 & signed drift; agreement with human labels; Qwen2.5-3B; 0.5B on 136 more meetings & \ref{sec:rq3}, \ref{sec:dir} \\
+post-hoc D6 & Phi-3.5-mini; Qwen2.5-7B; prompt rewording; context padding; Prop.~\ref{prop:mono}; audit power & \ref{sec:rq3}--\ref{sec:rq4} \\
+post-hoc D7 & three more rewordings; window sizes; confident labels; pooled audit; 1.5B on 136 meetings & \ref{sec:rq3}--\ref{sec:rq4} \\
+post-hoc D8 & cost per workload (CPU, from logged run times) & \ref{sec:bench} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ---------------------------------------------------------------- 4. RQ1 (1.25 pp; Fig. 2)
+\section{RQ1: Does Re-segmentation Change Answers?}\label{sec:rq1}
+Fig.~\ref{fig:drift} summarizes the three confirmatory tests and W3.
+\textbf{H1} (supported). Under W1, the action-item share changes by a median \nHonemed{} per meeting (95\% CI
+\nHonelo--\nHonehi; preregistered rule: median $\ge$ \nHoneT{}, CI lower $\ge$ \nHoneL{}). \nHoneabove{} of
+\nHonevalid{} meetings exceed \nHoneT{}; the sign test, a preregistered robustness check, is not significant
+($p=\nHonesignp$), so the effect is less consistent across meetings than under H2 and H4 (sign tests $p\nHtwosignp$ and $p\nHfoursignp$). Other queries move too: question share \nWoneQtwomed{} (\nWoneQtwolo--\nWoneQtwohi), negative
+sentiment \nWoneQthreemed{}, topic=cost \nWoneQfourmed{}.
+\paragraph*{Heterogeneity} The median hides a wide spread (Fig.~\ref{fig:perunit}). Under W1, per-meeting drift ranges from
+\nHonemin{} to \nHonemax{}; under the placebo, from \nHtwomin{} to \nHtwomax. A user who compares two meetings, or one meeting before and after a pipeline
+change, can see differences of this size that come from segmentation alone.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figs/drift.pdf}
+\caption{Drift of the primary query per workload on held-out units: median and 95\% BCa interval. Black: confirmatory
+tests; gray: exploratory. Short vertical ticks mark each hypothesis' preregistered threshold $T$.}
+\label{fig:drift}
+\end{figure}
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figs/per_unit.pdf}
+\caption{Per-meeting drift of the action-item share on the 16 held-out meetings, sorted by W1 drift. Dashed: the H1
+threshold $T$.}
+\label{fig:perunit}
+\end{figure}
+
+% ---------------------------------------------------------------- 5. RQ2 (1.25 pp; Fig. 3)
+\section{RQ2: Granularity or Boundaries?}\label{sec:rq2}
+\textbf{H2} (supported). The placebo changes the action-item share by \nHtwomed{} (\nHtwolo--\nHtwohi), although it
+preserves the words, the number of segments and their lengths. Per meeting, the placebo drift exceeds the W1 drift
+by a median \nPlaceboGapmed{} (\nPlaceboGaplo--\nPlaceboGaphi; larger in \nPlaceboGaplarger{} of 16 meetings); with
+the 0.5B model the difference is not significant on these 16 meetings (\nPlaceboGapMtwolo--\nPlaceboGapMtwohi) but is
+on \nScaleN{} further meetings (Sec.~\ref{sec:dir}). This does not identify the
+cause of W1's drift, but it shows that drift of this size does not require diarization errors: an arbitrary move of
+boundaries, with words, segment count and sizes held fixed, produces at least as much.
+\paragraph*{Where the flips are} Aggregates hide how much changes underneath. Under W1, \nFlipWoneactionitem\% of words
+change their action-item label (question \nFlipWonequestion\%, topic \nFlipWonetopic\%); under the placebo,
+\nFlipWtwoactionitem\%. Flips in the two directions largely cancel, so the
+net change of a share is much smaller than the flip rate; the drift $D$ is that remainder relative to the old share. Flips concentrate where a word's segment changes length: in
+W1, a word whose new segment is within 0.8--1.25$\times$ the length of its old one flips \nFlipWonesame\% of the time,
+against \nFlipWonehalf\% when the segment shrinks below half and \nFlipWonedouble\% when it more than doubles. The
+placebo keeps the length distribution but not each word's segment length; even words whose segment length is nearly
+unchanged flip \nFlipWtwosame\% of the time, because the words around them change.
+\paragraph*{Granularity amplifies} Boundaries are not the only factor. Merging $k$ consecutive same-speaker manual
+segments keeps every boundary of the coarser segmentation at an original boundary but makes segments $k$ times longer.
+Drift grows steeply with $k$ (Fig.~\ref{fig:gran}): \nEsixktwoQonemed{} (\nEsixktwoQonelo--\nEsixktwoQonehi) at $k=2$,
+\nEsixkfourQonemed{} at $k=4$, and \nEsixkeightQonemed{} (\nEsixkeightQonelo--\nEsixkeightQonehi) at $k=8$. Granularity
+is thus a second lever beside boundary placement; W1, which refines the segmentation, drifts less than the placebo.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figs/granularity.pdf}
+\caption{Granularity dose--response on held-out meetings: drift of the action-item share when $k$ consecutive
+same-speaker manual segments are merged (median and 95\% interval). Dashed line and gray band: the placebo (median
+and interval), which keeps segment sizes and only moves boundaries; it is a reference, not a point on the $k$ axis.}
+\label{fig:gran}
+\end{figure}
+
+% ---------------------------------------------------------------- 6. RQ3 (1.0 pp; Tab. 2)
+\section{RQ3: Pipeline Revisions and Documents}\label{sec:rq3}
+\textbf{H4} (supported). Switching the chunker changes the dated share of Wikipedia text by \nHfourmed{}
+(\nHfourlo--\nHfourhi; \nHfourvalid{} of \nHfourunits{} articles, \nHfourguard{} excluded by the 0.02 guard); entity
+sums change by \nWikiQdtwomed{} and the topic distribution by a total variation of \nWikiQdthreemed.
+\textbf{Window size} (post-hoc). A routine setting, the window of the same fixed chunker, also moves the answer:
+from 120 to 150 words the dated share changes by \nChunkonefivezeromed{} (absolute \nChunkonefivezeroabs{} points,
+rising in \nChunkonefivezeroup{} of 200 articles), and from
+120 to 100 words by \nChunkonezerozeromed{} (absolute \nChunkonezerozeroabs, rising in \nChunkonezerozeroup). Many
+articles have only a few chunks, so per-article drift takes values such as $1/6$ and $1/4$ and the medians and
+interval ends fall on them; the means are larger (\nChunkonefivezeromean{} and \nChunkonezerozeromean, absolute
+\nChunkonefivezeroabsmean{} and \nChunkonezerozeroabsmean{} points), and the dated share changes at all in
+\nChunkonefivezerochanged{} and \nChunkonezerozerochanged{} of 200 articles.
+\textbf{W3} (exploratory). A diarizer configuration change (estimated vs known speaker count) changes the action-item
+share by only \nWthreeQonemed{} (\nWthreeQonelo--\nWthreeQonehi); it changes a third of the segments
+(Table~\ref{tab:workloads}), against almost all of them under W1.
+\paragraph*{A second model and other queries} With Qwen2.5-0.5B the primary effects reappear (Table~\ref{tab:all}): W1
+\nWoneQoneMtwomed{} (\nWoneQoneMtwolo--\nWoneQoneMtwohi), placebo \nWtwoQoneMtwomed{} (\nWtwoQoneMtwolo--\nWtwoQoneMtwohi),
+chunker \nWikiQdoneMtwomed{} (\nWikiQdoneMtwolo--\nWikiQdoneMtwohi). With this model the placebo is not clearly larger
+than W1 on these 16 meetings (paired difference \nPlaceboGapMtwomed, interval \nPlaceboGapMtwolo--\nPlaceboGapMtwohi);
+on the \nScaleN{} scale meetings it is (Sec.~\ref{sec:dir}), and the placebo's median drift exceeds W1's for all five
+scorers (Table~\ref{tab:models}). Across queries, shares of binary and label columns move
+most; entity sums and topic distributions move less on meetings but strongly on documents. The 0.5B model almost
+never answers ``cost'', so that query has no valid unit for it.
+\paragraph*{Larger models and another family (post-hoc)} Table~\ref{tab:models} adds Qwen2.5-3B and -7B and Microsoft's
+Phi-3.5-mini (3.8B), each in fp32 and each with identical labels under two batch budgets before use (3B and Phi on the
+TITAN Xp cards, split over two; 7B on one NVIDIA A100 80\,GB; a bf16 run of
+7B failed this check and was discarded). These three were run on W1, W2 and W4 only; every scorer's relative drift is
+positive on each, though for 3B and 7B the absolute W1 change of the action-item share is within a point of zero.
+All scorers are weak judges of these columns (Sec.~\ref{sec:dir}), so drift is measured on labels of limited validity;
+the two that agree best with the human labels still drift: Phi-3.5-mini (question
+F1 \nGoldQumanualfoneMphi) changes the action-item share by \nWoneQoneMphimed{} under W1, \nWtwoQoneMphimed{} under
+the placebo (more than under W1 by \nPlaceboGapMphimed, \nPlaceboGapMphilo--\nPlaceboGapMphihi) and the dated share
+by \nWikiQdoneMphimed{} under the chunker change; Qwen2.5-7B (question F1 \nGoldQumanualfoneMseven) changes the
+question share by \nWoneQtwoMsevenmed{} (\nWoneQtwoMsevenlo--\nWoneQtwoMsevenhi) under W1 and \nWtwoQtwoMsevenmed{}
+(\nWtwoQtwoMsevenlo--\nWtwoQtwoMsevenhi) under the placebo, and the dated share by \nWikiQdoneMsevenmed{}, the smallest
+chunker drift of the five scorers. Relative drift must be read with the base share: 3B and 7B label far less speech
+as action items (median old share \nSgWoneQoneMthreeold\% and \nSgWoneQoneMsevenold\% against \nSgWoneQoneold\% for
+1.5B), so their relative drift is larger while their absolute changes are smaller; for 7B only
+\nWoneQoneMsevenvalid{} of 16 meetings pass the guard on this query, and its absolute W1 change is \nSgWoneQoneMsevenabs{}
+points (\nSgWoneQoneMsevenabslo{} to \nSgWoneQoneMsevenabshi). The absolute
+columns therefore matter as much as $D$: a consumer who compares answers across versions sees the relative change, one
+who reads levels sees the absolute one.
+\paragraph*{Drift is not a matter of near-ties (post-hoc)} A scorer could drift only because many of its labels are
+coin flips that any change of input tips over. We recompute the question and action-item shares over segments whose
+answer logit leads the runner-up by at least \nConfMargin{} (about 88\% confidence for a yes/no answer) on both sides.
+For the three larger scorers most words pass (\nConfWoneQtwoSevenkept\% for 7B, \nConfWoneQtwoThreekept\% for 3B and
+\nConfWoneQonePhikept\% for Phi on W1), and drift does not shrink: W1 question drift is \nConfWoneQtwoSevenmed{}
+(\nConfWoneQtwoSevenlo--\nConfWoneQtwoSevenhi) for 7B and \nConfWoneQtwoThreemed{} for 3B, placebo action-item drift
+\nConfWtwoQonePhimed{} (\nConfWtwoQonePhilo--\nConfWtwoQonePhihi) for Phi. For action items under W1 the guard leaves
+only \nConfWoneQoneSevenn{} (7B) and \nConfWoneQoneThreen{} (3B) meetings and the intervals reach
+\nConfWoneQoneSevenhi{} and \nConfWoneQoneThreehi, so those cells are uninformative. The two small models are rarely
+that confident (\nConfWoneQtwokept\% of words for 1.5B), so this test says little about them.
+\begin{table*}[t]
+\centering\footnotesize
+\caption{Post-hoc: every scorer on held-out data. Base share: median old action-item share. $D$: median relative
+drift of the primary query (W1, W2: action items; W4: dated text). $|\Delta|$: median absolute change in percentage
+points, regardless of direction. Question F1: word-level agreement with human dialogue-act labels on manual segments.}
+\label{tab:models}
+\input{figs/models.tex}
+\end{table*}
+\begin{table*}[t]
+\centering\footnotesize
+\caption{Median relative drift $D$ on held-out units for every query and workload, for the 0.5B, 1.5B and 3B models
+(exploratory, except the primary queries of W1, W2 and W4 with the 1.5B model; the 3B model is post-hoc and was not
+run on W3; 7B and Phi are in Table~\ref{tab:models}). ``--'': no unit passes the 0.02
+guard. Intervals and absolute changes are in the released tables.}
+\label{tab:all}
+\input{figs/drift_all.tex}
+\end{table*}
+
+% ---------------------------------------------------------------- 6b. Direction and correctness (post-hoc, D5)
+\section{Direction and Correctness}\label{sec:dir}
+The analyses in this section were added after the confirmatory analysis, following an internal review; they are
+post-hoc and exploratory (logged as a deviation before they were run).
+\paragraph*{Drift has a direction when the re-segmentation is systematic} Relative drift $D$ is unsigned. Signed,
+absolute changes separate erratic from systematic movement. Merging segments raises the yes-share of predicates that
+are satisfied by \emph{any} part of a segment: at $k=8$ the action-item share rises by a median
+\nSgEsixkeightQoneabs{} percentage points (in \nSgEsixkeightQoneup{} of 16 meetings) and the question share by
+\nSgEsixkeightQtwoabs{} (\nSgEsixkeightQtwoup{} of 16), while the share of negative sentiment, a judgment about the
+whole segment, falls by \nSgEsixkeightQthreeabs{} (rising in only \nSgEsixkeightQthreeup{} of 16) (merges were scored
+with the primary model only). The placebo, which cuts utterances at arbitrary words, changes the question share by
+\nSgWtwoQtwoabs{} points with the primary model, and the question share falls for four of the five scorers (it rises
+in \nSgWtwoQtwoup, \nSgWtwoQtwoMtwoup, \nSgWtwoQtwoMthreeup{} and \nSgWtwoQtwoMphiup{} of 16 meetings for the 1.5B,
+0.5B, 3B and Phi models): a question split across two segments is often recognized in neither. Qwen2.5-7B is the
+exception: its question share rises by \nSgWtwoQtwoMsevenabs{} points (\nSgWtwoQtwoMsevenabslo{} to
+\nSgWtwoQtwoMsevenabshi; in \nSgWtwoQtwoMsevenup{} of 16), as if it recognized a question in both halves. For action
+items the direction depends on the model: the share rises in \nSgWtwoQoneup{} of 16 meetings for 1.5B,
+\nSgWtwoQoneMtwoup{} for 0.5B, \nSgWtwoQoneMthreeup{} for 3B, \nSgWtwoQoneMsevenup{} for 7B and \nSgWtwoQoneMphiup{}
+for Phi. Replacing diarizer turns by manual segments (W1) has no clear direction on the 16 held-out meetings
+(\nSgWoneQoneabs{} points, interval \nSgWoneQoneabslo{} to \nSgWoneQoneabshi; rising in \nSgWoneQoneup{} of 16; see the
+scale run below), and
+paragraph chunking raises the dated share of articles by \nSgWikiQdoneabs{} points (rising in \nSgWikiQdoneup{} of
+200). Segmentation can therefore bias LLM-derived aggregates: with the primary model, coarsening raised predicates satisfied by
+any part of a segment, while the direction under arbitrary cuts depends on the predicate and the scorer.
+\paragraph*{Drift changes agreement with human labels} AMI's manual dialogue acts give a human reference for two
+columns: questions (elicit acts) and, as a proxy for action items, suggestions; both type sets were fixed in an earlier
+pilot. Table~\ref{tab:gold} compares each segmentation's word-weighted share with the human share. The scorer
+over-predicts both predicates under every segmentation (its notion of a question is broader than an elicit act; the
+human question share is \nGoldQushare\%). Across the segmentations a pipeline would produce (manual, diarizer turns,
+estimated speaker count) the question-share error varies modestly, from \nGoldQumanualabserr{} to
+\nGoldQuwoneoldabserr{} points; across coarser segmentations it grows to \nGoldQumergeeightabserr{} points; across
+scorers on the same manual segments it ranges from \nGoldQumanualabserrMphi{} (Phi-3.5-mini) to
+\nGoldQumanualabserr{} (1.5B).
+Lower share error is not better segmentation: the placebo looks closest only because it pushes shares down. Word-level
+F1, which does not reward such compensation, is \nGoldQumanualfone{} for manual segments and \nGoldQuwoneoldfone{} for
+diarizer turns on questions with the primary model, and \nGoldQumanualfoneMthree{} under each of the three
+segmentations scored with the 3B model. The accuracy of an LLM-derived aggregate therefore depends on both the scorer and the segmentation, and
+neither can be reported without the other.
+\paragraph*{Scale} To test whether the held-out results generalize beyond 16 meetings, we diarized and scored the
+\nScaleN{} remaining AMI meetings (all except dev, eval and one whose audio could not be downloaded) with the second
+model, on a second server whose labels matched the first on all 1,000 rescored cells. These meetings include AMI's
+training split, on which pyannote's segmentation model was trained, so its turns may be better there than on unseen
+audio; the placebo does not involve pyannote. Drift is stable as the sample
+grows (Fig.~\ref{fig:scale}): with all \nScaleN{} meetings, W1 changes the action-item share by \nScaleWoneQonemed{}
+(\nScaleWoneQonelo--\nScaleWoneQonehi) and the placebo by \nScaleWtwoQonemed{} (\nScaleWtwoQonelo--\nScaleWtwoQonehi),
+and the interval of W1 narrows from \nScaleWoneQonesixteenwidth{} for the first 16 scale meetings to
+\nScaleWoneQonefullwidth. The
+placebo now drifts more than W1 also for this model (paired difference \nScaleGapmed, \nScaleGaplo--\nScaleGaphi;
+larger in \nScaleGaplarger{} of \nScaleN{} meetings), which the 16 held-out meetings could not resolve. The
+held-out directions for this model also hold at scale: the placebo lowers the question share in
+\nScaleWtwoQtwodown{} of \nScaleN{} meetings and raises the action-item share in \nScaleWtwoQoneup. Materializing
+one five-column view of the \nScaleN{} meetings takes \nScaleCallsManual{} calls, about \nScaleMinManual{} minutes on
+one card for the 0.5B model; the number of calls grows linearly with the corpus, and so does the cost of every full
+recomputation that non-invariance forces.
+\paragraph*{Scale with the primary model (post-hoc)} We repeated the scale run with the 1.5B model on the same server,
+after checking that it reproduces the first server's held-out labels exactly (\nXhostPmism{} of \nXhostPN{} cells
+differ). Over the \nScalePN{} meetings, W1 changes the action-item share by \nScalePWoneQonemed{}
+(\nScalePWoneQonelo--\nScalePWoneQonehi), above the held-out estimate of \nHonemed, and the question share by
+\nScalePWoneQtwomed; the placebo changes them by \nScalePWtwoQonemed{} and \nScalePWtwoQtwomed{} and again exceeds W1
+(paired difference \nScalePGapmed, \nScalePGaplo--\nScalePGaphi). The directions seen on the held-out meetings become
+clear: manual segments lower the action-item share relative to diarizer turns by \nScalePWoneQoneabs{} points
+(rising in only \nScalePWoneQoneup{} of \nScalePN{} meetings, where the held-out interval still included zero), and the
+placebo lowers both shares (rising in \nScalePWtwoQoneup{} and \nScalePWtwoQtwoup{}). These meetings are a
+different population (they include pyannote's training data), so the run supports the direction and existence of
+drift, not a correction of the held-out estimates.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figs/scale.pdf}
+\caption{Post-hoc scale check with the second model: drift of the action-item share on nested random subsets of the
+\nScaleN{} AMI meetings outside the development and held-out sets (median and 95\% interval).}
+\label{fig:scale}
+\end{figure}
+\begin{table}[t]
+\centering\footnotesize
+\caption{Post-hoc: word-weighted shares under each segmentation of the held-out meetings versus human dialogue-act
+labels (median over 16 meetings, \%; primary model). $|$err$|$: absolute difference to the human share. F1: word-level
+agreement with the human labels.}
+\label{tab:gold}
+\setlength{\tabcolsep}{4pt}
+\input{figs/gold.tex}
+\end{table}
+
+% ---------------------------------------------------------------- 6c. Calibration, a candidate fix, structure (post-hoc, D6)
+\section{How Large, and Can Context Fix It?}\label{sec:calib}
+This section is also post-hoc (a second logged deviation, after a second internal review).
+\paragraph*{A scale for drift} To read a drift of 0.15, we measure the same statistic for two changes that pipelines
+already treat as versioned, on the \emph{fixed} manual segmentation of the held-out meetings. Four rewordings of each
+column question, with the same answer sets and scoring, change the action-item share by a median \nCalParaDQonemed,
+\nCalParaQonemed, \nCalParaBQonemed{} and \nCalParaCQonemed{}, and the question share by \nCalParaBQtwomed{} to
+\nCalParaCQtwomed{} (absolute \nCalParaBQtwoabs{} to \nCalParaCQtwoabs{} points: what counts as a question shifts with
+its wording). The first rewording with the 0.5B scorer changes the action-item share by \nCalParaHalfQonemed{}
+against a W1 drift of \nWoneQoneMtwomed{} for that model. Replacing the 1.5B scorer by the 0.5B one changes the action-item share by
+\nCalSwapHalfQonemed, and by Phi-3.5-mini or 3B by \nCalSwapPhiQonemed{} and \nCalSwapThreeQonemed{} (all on the same
+cards; the 7B model ran on other hardware and is not compared here). W1 drift (\nHonemed{} for action items,
+\nWoneQtwomed{} for questions) is thus just below the mildest rewording for action items, and about a fifth of the
+mildest for questions; the placebo's action-item drift (\nHtwomed) lies within the range of the rewordings, and both
+segmentation drifts are smaller than any of the three model swaps. Segmentation is a smaller lever than the prompt, but for action items of the
+same order as its mildest rewordings. Prompts and models are routinely recorded with an LLM-derived
+result; the segmentation usually is not.
+\paragraph*{Context padding is not a fix} A natural remedy is to let the scorer see the neighbors of each segment:
+we show the two preceding and two following segments as context and label only the target, as DocETL's gather
+operator does for split documents~\cite{docetl}. This costs
+\nCtxRatio$\times$ the input tokens (\nCtxTokCtx{} instead of \nCtxTokPlain{} per call). It lowers W1 drift (action
+items \nWoneQoneCtxmed{} instead of \nHonemed; questions \nWoneQtwoCtxmed{} instead of \nWoneQtwomed) and placebo drift
+for questions (\nWtwoQtwoCtxmed{} instead of \nWtwoQtwomed), but raises placebo drift for action items to
+\nWtwoQoneCtxmed{}, and it reduces agreement with the human labels (question F1 \nGoldQumanualfoneCtx{} instead of
+\nGoldQumanualfone{} on manual segments) because the model then labels more of the speech as questions. Context
+changes what the view measures as much as it stabilizes it; a segmentation-robust view needs more than a wider prompt.
+\paragraph*{Structure, formally} Structural reuse would be sound for predicates that compose over segments.
+\begin{proposition}\label{prop:mono}
+Let $f$ be a binary column that is monotone under concatenation: $f(st) \ge \max(f(s), f(t))$ with yes $>$ no. If
+$S'$ coarsens $S$ (every segment of $S'$ is a concatenation of consecutive segments of $S$), then
+$Q_{f,\mathrm{yes}}(S') \ge Q_{f,\mathrm{yes}}(S)$.
+\end{proposition}
+\begin{proof}
+A word labeled yes under $S$ lies in a segment $s$ with $f(s)=$ yes; its segment under $S'$ contains $s$, so it is
+labeled yes as well. Word weights do not change.
+\end{proof}
+Action items and questions are intended to be such ``any part'' predicates, and merging indeed raises their shares
+(Sec.~\ref{sec:dir}). But the scorer violates monotonicity often: among merged segments with at least two parts,
+\nMonoktwoAcloss\% (at $k=2$) to \nMonokeightAcloss\% (at $k=8$) are labeled ``no'' although one of their parts was
+labeled ``yes'' (questions: \nMonoktwoQuloss\% to \nMonokeightQuloss\%). The rules of Sec.~\ref{sec:rq4} therefore
+cannot be trusted without verification, and reusing the overlapping old value is no better: it is right for only
+\nAnchorAccactionitem\% of changed action-item cells, \nAnchorAccquestion\% of question cells and
+\nAnchorAcctopic\% of topic cells.
+
+% ---------------------------------------------------------------- 7. RQ4 (1.75 pp; Tab. 3, Fig. 4)
+\section{RQ4: Consequences for View Maintenance}\label{sec:rq4}
+When a segmenter is revised, a view must be brought up to date. Recomputing every changed row is always correct; the
+question is how much of that cost can be avoided without returning wrong cells. We replay five policies on the cached
+outputs of W1 (\nEWonecells{} changed cells over 16 held-out meetings and five columns), so every policy's LLM calls
+and its true cell error are known exactly.
+\paragraph*{Policies}
+\emph{Full} recomputes every changed cell. \emph{Content hash} reuses a value only when the new segment's text equals
+an old segment's text; this is exact. \emph{Anchor + audit} transfers the stable-row view of prior work~\cite{sivm,semreuse}, which was not designed for
+re-segmentation, to this setting:
+it gives each new cell the value of its most-overlapping old segment (its anchor) as a provisional value and certifies
+it per column with an exact hypergeometric audit. \emph{Rules/anchor + audit} proposes values from structural
+rules where they apply (e.g., a segment whose parts are all ``no'' for a monotone predicate is ``no''; an entity count
+of a segment that is the exact union of old segments is their sum) and from anchors elsewhere, and audits each
+provenance stratum. The audit samples a stratum with doubling sample sizes and certifies it when the $(1-\alpha)$ upper
+bound on its number of wrong provisional values is at most $\epsilon N$; an uncertifiable stratum is recomputed; the
+family error $\delta=0.05$ is split over strata (union bound). A further variant splits strata by the scorer's
+confidence on the old cells.
+\begin{table*}[t]
+\centering\footnotesize
+\caption{View maintenance on held-out meetings: LLM calls as a share of full recomputation, with the 95\% interval of
+a meeting bootstrap in which the whole policy is re-run in each resample, and the true cell error in percent; means
+of 100 trials, family error $\delta=0.05$. Content hashing does not depend on $\epsilon$ and has no error.}
+\label{tab:maint}
+\input{figs/maintenance.tex}
+\end{table*}
+\paragraph*{Results (Table~\ref{tab:maint})}
+Content hashing is exact and needs \nEWonehashshare{} of the calls: \nEWonehashpct\% of changed cells keep an identical
+text, because only their times moved. Under W1, anchor reuse with an audit saves nothing beyond hashing at any
+$\epsilon$: the anchors are wrong too often for any stratum to certify, so every non-identical cell is recomputed.
+Under the smaller W3 revision it certifies a little at $\epsilon=0.15$ (\nEWthreeanchorcertepsonefiveshare{} of calls
+against \nEWthreehashshare{} for hashing). This is the practical meaning of non-invariance for stable-row maintenance. Structural rules help only modestly: on the \nEWonerulecells{} cells where a rule fires,
+\nEWonerulesmajority{} of the \nEWonerulesn{} rules are exactly as accurate as predicting the majority class
+(Cohen's $\kappa=0$); only the entity-sum rule carries information ($\kappa=\nEWonesumunionkappa$). With the audit, rules plus
+anchors need
+\nEWoneechobaseepsonezeroshare{} of the calls at $\epsilon=0.10$ (cell error \nEWoneechobaseepsonezeroerr) and
+\nEWoneechobaseepsonefiveshare{} at $\epsilon=0.15$. The share of trials in which any certified stratum's true error
+exceeded $\epsilon$ was \nEWoneechobaseepsonezeroviol{} at $\epsilon=0.10$ and \nEWoneechobaseepsonefiveviol{} at
+$\epsilon=0.15$, within $\delta=0.05$.
+\paragraph*{Why the audit saves so little (post-hoc)} We corrupt the provisional values of the \nPowerStrata{} largest
+strata to a known true error from $\epsilon-0.05$ to $\epsilon+0.05$ and run the audit 100 times at each level. The audit is exact by construction, and the simulation agrees: a stratum
+whose actual error exceeds $\epsilon$ is certified at an observed rate of at most \nPowerViolMax{}, against a
+per-stratum allowance of \nPowerAlpha{} (with so few events this is a consistency check, not a further proof). It is also expensive. With the family
+error split over all strata, each stratum must be audited at a very small risk, and even when every provisional value
+is correct the audit recomputes \nPowerSampZero\% of the stratum at $\epsilon=0.05$; at two points below the tolerance
+it recomputes \nPowerSampBelowfive--\nPowerSampBelowonefive\%, and at the tolerance essentially all of it. Certified
+reuse therefore pays off only for large strata whose provisional values are far more accurate than $\epsilon$, which
+re-segmentation does not produce. The union bound is not the cause: pooling all \nPoolWoneanchored{} anchored cells
+of W1 into one stratum audited at the full $\delta$ (a weaker guarantee, on the overall error only) certifies in none of
+100 trials at any $\epsilon$ up to 0.15, because the old row's value is wrong for \nPoolWoneanchorerr\% of these cells
+(\nPoolWthreeanchorerr\% under W3); no audit can certify reuse at that error rate.
+\paragraph*{Cost} A recomputed cell is one scorer call on a segment of \nEWonetok{} tokens on average. At the measured
+rate of \nThrBig{} calls per second, recomputing all changed cells of W1 takes \nMaintMinFull{} GPU-minutes on one
+card; content hashing \nMaintMinHash{}, and rules with the audit at $\epsilon=0.10$ \nMaintMinRules{} (mean over
+trials). The audit itself is CPU work and cheap: replaying all policies, tolerances, trials and bootstrap resamples
+(\nEWonepolicyruns{} complete maintenance runs plus the validity test) takes \nEWonewall{} minutes, at most
+\nEWonesecperrun{} seconds per run. These are small numbers because our views are small; the shares in Table~\ref{tab:maint} are
+what transfers to larger deployments, where calls are billed per token or bounded by GPU time.
+Under W3, where only a third of the segments change, content hashing already avoids about half of the calls
+(\nEWthreehashshare{} remain) and the audit reduces them to \nEWthreeechobaseepsonezeroshare{} at $\epsilon=0.10$ (Table~\ref{tab:maint}).
+The smaller the revision, the more of the view survives by content alone.
+
+% ---------------------------------------------------------------- 9. Related work (0.75 pp)
+\section{Related Work}
+\paragraph*{Semantic operators and LLM-derived data} Generating structured views of unstructured data with LLMs is an
+established data-management task: Evaporate builds queryable tables from heterogeneous document collections and
+trades extraction quality against LLM cost~\cite{evaporate}. Semantic data systems execute LLM calls as query
+operators: LOTUS defines declarative semantic operators with accuracy guarantees~\cite{lotus}, Palimpzest optimizes
+AI analytics for cost, runtime and quality~\cite{palimpzest}, DocETL rewrites document-processing pipelines with an
+agent~\cite{docetl}, ZenDB answers SQL over templated documents using their structure~\cite{zendb}, and Stretto is an
+execution engine for such systems~\cite{stretto}. All of them operate on rows that an upstream step has already
+produced (tuples, documents, chunks) or derive the units from document structure~\cite{zendb}; we are not aware
+of one that measures how query answers depend on that choice of units. Recent work maintains their results under change: SemReuse certifies the reuse of cached
+natural-language views for new semantic predicates~\cite{semreuse}; sIVM certifies the maintenance of LLM-computed
+cells under prompt edits~\cite{sivm}; and maintaining an evolving semantic substrate can cost in proportion to the
+change rather than the corpus~\cite{costchange}. All of them key results by a stable row or document identity. We study
+the change they assume away: the rows themselves move while the content stays fixed, and we show that this alone
+changes the answers.
+\paragraph*{View maintenance, provenance and evolving text} Materialized-view maintenance avoids recomputation by
+detecting updates that cannot affect a view and re-evaluating the rest differentially~\cite{blakeley86}; it is now
+part of industrial data-engineering pipelines~\cite{enzyme}. Its correctness rests on the view being a function of
+the base data. For LLM-derived views this holds only once the segmentation is fixed, so we treat the segmenter as part
+of the view definition (Sec.~\ref{sec:model}) and measure what maintenance costs when it changes
+(Sec.~\ref{sec:rq4}). Our structural rules and anchors are a form of where-provenance~\cite{whywhere}: they map a
+new segment to the old segments its words came from. Cyclex recycles information-extraction results across snapshots
+of evolving text~\cite{cyclex}, for extractors whose outputs are tied to text regions. LLM extractors read a whole
+segment, so the segment boundary is part of the input; Propositions~\ref{prop:trivial} and~\ref{prop:mono} make this
+precise.
+\paragraph*{Sensitivity of LLMs} NLP work shows that LLM outputs change under semantically equivalent prompt
+formats~\cite{sclar}. We hold the prompt fixed and change only how the data are cut, a decision made by a data
+pipeline, and measure the effect on aggregate query answers rather than on single outputs.
+\paragraph*{Segmenters} Speaker diarization~\cite{pyannote} and document chunking decide the rows of segment-keyed
+views; they are evaluated by their own error metrics, not by the stability of downstream analytical answers. In
+meeting processing, dialog-act classification is known to degrade with automatic segmentation and recognized words
+rather than human ones~\cite{angdialog}; there the words change too and the target is per-segment accuracy, while we
+hold the words fixed and measure aggregate query answers. In
+retrieval-augmented generation, chunking is tuned for answer quality: a systematic study finds that overlap brings no
+benefit and that sentence chunking is the most cost-effective method~\cite{chunkqa}. We ask a different question:
+not which chunking answers best, but how much an aggregate changes when the chunking changes.
+\paragraph*{Unit-of-aggregation effects} That aggregates depend on the units over which data are grouped is known in
+spatial statistics as the modifiable areal unit problem~\cite{maup}. Our setting differs in where the dependence
+arises: the measurement itself (the LLM's label of a unit) changes with the unit, not only the aggregation, and the
+direction follows the predicate (Sec.~\ref{sec:dir}).
+
+% ---------------------------------------------------------------- 8. Discussion (0.75 pp)
+\section{Discussion}\label{sec:disc}
+\paragraph*{No segmentation is the right one} Neither version is, and the claim does not need one. Manual segments are a reference for
+diarization quality, not for what an LLM should answer, and the placebo is deliberately arbitrary. The finding is that
+the answer depends on a choice that pipelines make for unrelated reasons (speaker change detection, index chunk size),
+so the choice must be recorded and held fixed wherever answers are compared.
+\paragraph*{Not sampling noise} The scorer is deterministic (Sec.~\ref{sec:bench}), so every difference between two
+versions is caused by the segmentation. Rescoring held-out segments under different batch budgets, and on a second
+server, reproduced every label checked (Sec.~\ref{sec:bench}, Sec.~\ref{sec:dir}).
+\paragraph*{A kind of input sensitivity} In part, the segment text is the model's input, so segmentation
+sensitivity is a kind of input sensitivity. What distinguishes it from prompt sensitivity~\cite{sclar} is that the
+instruction and the content of the source are fixed and only the unit the question is asked about changes, and that
+unit is chosen by a data pipeline, not by the user. That makes it a property of the view definition, which a data
+system can record, version and test.
+\paragraph*{Threats to validity} \emph{Internal:} versions are built from reference words, which removes automatic speech recognition (ASR) error but
+also removes a realistic source of change; diarizer turns are mapped to reference speakers by overlap, so a mapping
+error could add drift, but the placebo, which needs no mapping, drifts more. pyannote's segmentation model was trained
+on AMI's training split, which does not include our held-out meetings. \emph{External:} the confirmatory tests use one
+1.5B model (and a 0.5B second model admitted before the freeze); the post-hoc checks add three scorers up to 7B, one
+from another family, but none of the large hosted models;
+one corpus per domain; English only. We release the harness so that further models and domains can be measured.
+\emph{Construct:} our queries are word-weighted shares, entity sums and topic distances;
+queries over segment counts would move more, since segment counts change by construction. \emph{Statistical:} the confirmatory
+tests use 16 meetings, so their intervals are wide; the post-hoc scale runs on \nScaleN{} further meetings (0.5B and
+1.5B models) give narrower intervals and, for 1.5B, a larger W1 drift (\nScalePWoneQonemed{} against \nHonemed), on a
+different population and without preregistration.
+
+% ---------------------------------------------------------------- 9. Lessons (0.5 pp)
+\section{Lessons for System Builders}\label{sec:lessons}
+\begin{enumerate}[leftmargin=*,nosep]
+\item \textbf{The segmenter is part of the view definition.} Version it with the prompt and the model; an answer
+computed under one segmentation is not comparable to one computed under another.
+\item \textbf{Test invariance before trusting a pipeline.} A placebo re-segmentation (Sec.~\ref{sec:bench}) costs one
+extra scoring pass and shows how much of an answer is an artifact of boundaries.
+\item \textbf{Reuse by content, or audit.} When boundaries move, reusing a cell is exact only for identical text;
+anything else needs verification (Sec.~\ref{sec:rq4}).
+\item \textbf{Report the unit.} Drift is heterogeneous across meetings and documents; report per-unit distributions,
+not one pooled number.
+\end{enumerate}
+
+% ---------------------------------------------------------------- 10. Conclusion (0.5 pp)
+\section{Conclusion}
+LLM-derived views inherit the segmentation of their source. Holding every word fixed, replacing diarizer turns by
+manual segments changed the action-item share of held-out meetings by a median relative \nHonemed, switching a
+chunker changed the dated share of articles by \nHfourmed, and a placebo that only moves boundaries changed the
+meeting answers by \nHtwomed; a small diarizer reconfiguration changed them by only \nWthreeQonemed{} (exploratory). Segmentation is therefore part of the definition of such
+a view, and maintenance methods that assume stable rows need either exact content reuse or an audit.
+The main limitations (open models up to 7B, one corpus per domain, 16 held-out meetings, no diarizer release
+upgrade) are discussed in Sec.~\ref{sec:disc}. Future work should test larger models and further domains with the
+released harness, and develop maintenance methods whose audits certify strata closer to the tolerance, or that certify the aggregate
+answer directly from a sample of recomputed segments instead of every cell.
+\section*{Acknowledgments and AI-Generated Content Declaration}
+% CFP: AI-generated text, figures, images or code "shall be disclosed in the acknowledgments section"; this
+% declaration does not count toward the 12 pages. Review the wording before submission.
+This work was supported by the IITP (Institute of Information \& Communications Technology Planning \& Evaluation)--ITRC
+(Information Technology Research Center) grant funded by the Korea government (Ministry of Science and ICT) XVoice
+(RS-2022-II220641) and the National Research Foundation of Korea (NRF) (RS-2025-24534935), Inha University, and
+Delta\_AI.
+
+\textit{AI-generated content.} We used Claude (Anthropic), through the Claude Code command-line tool, as follows.
+(1)~\emph{Code and experiments:} it wrote the experiment and analysis code (segmentation versions, scoring, drift
+statistics, the confirmatory analysis, the maintenance replay and all post-hoc analyses), launched and monitored the
+runs on our servers, and checked their integrity; the authors reviewed the code and approved the protocol, the
+freeze and every deviation. (2)~\emph{Figures and tables:} every figure and table (Figs.~\ref{fig:example}--\ref{fig:scale},
+Tables~\ref{tab:workloads}--\ref{tab:maint}) and every number in the text is produced by scripts written by the
+assistant from the released result files. (3)~\emph{Text:} the assistant drafted all sections (I--XIII), the
+propositions and their proofs, and searched for related work; every cited source was opened and checked, and the
+authors revised and approved the text. (4)~\emph{Review:} independent instances of the assistant acted as critical
+referees on drafts. The language models studied in the paper (Qwen2.5 and Phi-3.5 models) are the objects of the
+experiments, not writing aids. The authors take full responsibility for the correctness and originality of the
+content.
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+\end{document}

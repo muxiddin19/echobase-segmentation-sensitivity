@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+data/
+reproduced/
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.blg
+paper/*.bbl
+paper/main.pdf

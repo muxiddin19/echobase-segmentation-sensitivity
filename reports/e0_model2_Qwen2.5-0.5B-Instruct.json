@@ -1,0 +1,54 @@
+{
+ "model": "Qwen/Qwen2.5-0.5B-Instruct",
+ "n": 500,
+ "columns": {
+  "action_item": {
+   "agree_with_primary": 0.85,
+   "distribution": {
+    "no": 0.868,
+    "yes": 0.132
+   },
+   "yes_rate": 0.132,
+   "in_band": true
+  },
+  "question": {
+   "agree_with_primary": 0.748,
+   "distribution": {
+    "no": 0.84,
+    "yes": 0.16
+   },
+   "yes_rate": 0.16,
+   "in_band": true
+  },
+  "entity_count": {
+   "agree_with_primary": 0.606,
+   "distribution": {
+    "0": 0.526,
+    "1": 0.4,
+    "2": 0.046,
+    "3": 0.02,
+    "4": 0.004,
+    "6": 0.002,
+    "7": 0.002
+   }
+  },
+  "sentiment": {
+   "agree_with_primary": 0.796,
+   "distribution": {
+    "negative": 0.126,
+    "neutral": 0.808,
+    "positive": 0.066
+   }
+  },
+  "topic": {
+   "agree_with_primary": 0.158,
+   "distribution": {
+    "design": 0.026,
+    "other": 0.06,
+    "planning": 0.026,
+    "technical": 0.888
+   }
+  }
+ },
+ "admitted": true
+}

@@ -1,0 +1,52 @@
+{
+ "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+ "n": 500,
+ "columns": {
+  "action_item": {
+   "agree_with_primary": 0.89,
+   "distribution": {
+    "no": 1.0
+   },
+   "yes_rate": 0.0,
+   "in_band": false
+  },
+  "question": {
+   "agree_with_primary": 0.762,
+   "distribution": {
+    "no": 0.998,
+    "yes": 0.002
+   },
+   "yes_rate": 0.002,
+   "in_band": false
+  },
+  "entity_count": {
+   "agree_with_primary": 0.15,
+   "distribution": {
+    "0": 0.058,
+    "1": 0.558,
+    "2": 0.136,
+    "3": 0.148,
+    "4": 0.094,
+    "7": 0.006
+   }
+  },
+  "sentiment": {
+   "agree_with_primary": 0.142,
+   "distribution": {
+    "negative": 0.508,
+    "neutral": 0.002,
+    "positive": 0.49
+   }
+  },
+  "topic": {
+   "agree_with_primary": 0.458,
+   "distribution": {
+    "design": 0.526,
+    "other": 0.452,
+    "planning": 0.02,
+    "technical": 0.002
+   }
+  }
+ },
+ "admitted": false
+}

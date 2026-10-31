@@ -1,0 +1,48 @@
+# Frozen job matrix (confirmatory). Job id = exp/arm/sN/kind. Frozen at G1 together with program*.md.
+gpu_h_plan = 12
+gpu_h_cap = 24
+max_failures = 2
+max_concurrent = 2          # gpulab2 has 2 cards; launch_if_free.sh still waits for a completely empty card
+launch = "bash scripts/run_job.sh {job_id}"
+
+# Smoke tier S: one tiny end-to-end job per pilot (2 dev meetings). Allowed before G1; never part of a verdict.
+[[group]]
+exp = "smoke"
+tier = "S"
+pre_g1 = true
+arms = ["pilotA-structural", "pilotB-lineage"]
+seeds = [0]
+kinds = [{ kind = "run", gpu_h = 0.2 }]
+
+# Upstream: finish speaker diarization for all 18 dev meetings (idempotent; skips meetings already done).
+[[group]]
+exp = "prep"
+tier = "A"
+pre_g1 = true
+arms = ["diar"]
+seeds = [0]
+kinds = [{ kind = "run", gpu_h = 1.5 }]
+
+# Pilot A. Extraction is deterministic, so there is one run per condition; uncertainty = meeting-level bootstrap.
+[[group]]
+exp = "pilotA"
+tier = "A"
+arms = ["structural", "asr"]
+seeds = [0]
+kinds = [{ kind = "run", gpu_h = 0.6, needs = ["prep/diar/s0/run"] }]
+
+# Pilot B: LLM predicate labels on the Whisper transcript of every dev dialogue act (shared by both arms).
+[[group]]
+exp = "pilotB"
+tier = "B"
+arms = ["labels"]
+seeds = [0]
+kinds = [{ kind = "run", gpu_h = 0.6 }]
+
+# Pilot B samplers: CPU only, 100 trials per label budget per seed.
+[[group]]
+exp = "pilotB"
+tier = "B"
+arms = ["global", "lineage"]
+seeds = [0, 1, 2]
+kinds = [{ kind = "run", gpu_h = 0.0, needs = ["pilotB/labels/s0/run"] }]

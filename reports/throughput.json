@@ -1,0 +1,109 @@
+[
+ {
+  "unit": "e1-gpu0",
+  "model": "Qwen2.5-1.5B",
+  "version": "manual",
+  "meetings": 16,
+  "calls": 37450,
+  "segments": 7490,
+  "calls_per_s": 43.12020460358056
+ },
+ {
+  "unit": "e1-gpu0",
+  "model": "Qwen2.5-1.5B",
+  "version": "w1old",
+  "meetings": 16,
+  "calls": 29825,
+  "segments": 5965,
+  "calls_per_s": 40.23203592814371
+ },
+ {
+  "unit": "e1-gpu0",
+  "model": "Qwen2.5-1.5B",
+  "version": "placebo",
+  "meetings": 16,
+  "calls": 37450,
+  "segments": 7490,
+  "calls_per_s": 43.50967741935484
+ },
+ {
+  "unit": "e1-gpu1",
+  "model": "Qwen2.5-1.5B",
+  "version": "wiki-test",
+  "articles": 200,
+  "calls": 18165,
+  "calls_per_s": 12.199462726662189
+ },
+ {
+  "unit": "e1-gpu1",
+  "model": "Qwen2.5-1.5B",
+  "version": "w3old",
+  "meetings": 16,
+  "calls": 30965,
+  "segments": 6193,
+  "calls_per_s": 40.2821997105644
+ },
+ {
+  "unit": "e4-gpu0",
+  "model": "Qwen2.5-0.5B",
+  "version": "manual",
+  "meetings": 16,
+  "calls": 37450,
+  "segments": 7490,
+  "calls_per_s": 138.76543209876544
+ },
+ {
+  "unit": "e4-gpu0",
+  "model": "Qwen2.5-0.5B",
+  "version": "w1old",
+  "meetings": 16,
+  "calls": 29825,
+  "segments": 5965,
+  "calls_per_s": 123.84792626728111
+ },
+ {
+  "unit": "e4-gpu0",
+  "model": "Qwen2.5-0.5B",
+  "version": "placebo",
+  "meetings": 16,
+  "calls": 37450,
+  "segments": 7490,
+  "calls_per_s": 133.2806324110672
+ },
+ {
+  "unit": "e4-gpu0",
+  "model": "Qwen2.5-0.5B",
+  "version": "w3old",
+  "meetings": 16,
+  "calls": 30965,
+  "segments": 6193,
+  "calls_per_s": 122.62114537444934
+ },
+ {
+  "unit": "e6-gpu1",
+  "model": "Qwen2.5-1.5B",
+  "version": "merge2",
+  "meetings": 16,
+  "calls": 18800,
+  "segments": 3760,
+  "calls_per_s": 34.13306451612903
+ },
+ {
+  "unit": "e6-gpu1",
+  "model": "Qwen2.5-1.5B",
+  "version": "merge4",
+  "meetings": 16,
+  "calls": 9470,
+  "segments": 1894,
+  "calls_per_s": 23.49862258953168
+ },
+ {
+  "unit": "e6-gpu1",
+  "model": "Qwen2.5-1.5B",
+  "version": "merge8",
+  "meetings": 16,
+  "calls": 4820,
+  "segments": 964,
+  "calls_per_s": 14.62962962962963
+ }
+]

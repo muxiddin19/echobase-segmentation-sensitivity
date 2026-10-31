@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this artifact, please cite it as below."
+title: "Same Words, Different Answers: Segmentation Sensitivity of LLM-Derived Views (artifact)"
+authors:
+  - family-names: Toshpulatov
+    given-names: Mukhiddin
+    orcid: "https://orcid.org/0000-0002-8819-852X"
+    affiliation: "Gachon University"
+  - family-names: Lee
+    given-names: Wookey
+    orcid: "https://orcid.org/0000-0001-8586-4577"
+    affiliation: "Inha University"
+license: MIT
+type: software
+date-released: "2026-11-11"
+keywords:
+  - LLM-derived views
+  - segmentation
+  - view maintenance
+  - benchmark
+  - AMI Meeting Corpus
