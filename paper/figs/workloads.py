@@ -58,7 +58,7 @@ rows.append(("W4", "windows → paragraphs", "Wikipedia test", len(n_old), np.me
 
 out = ROOT / "reports" / "tables"
 out.mkdir(parents=True, exist_ok=True)
-with open(out / "workloads.csv", "w", newline="") as fh:
+with open(out / "workloads.csv", "w", newline="", encoding="utf-8") as fh:
     w = csv.writer(fh)
     w.writerow(["workload", "change", "data", "units", "segments_old", "segments_new", "change_share", "covered_units"])
     w.writerows(rows)

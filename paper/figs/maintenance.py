@@ -36,7 +36,7 @@ rows = rows[:-1]
 
 out = ROOT / "reports" / "tables"
 out.mkdir(parents=True, exist_ok=True)
-with open(out / "maintenance.csv", "w", newline="") as fh:
+with open(out / "maintenance.csv", "w", newline="", encoding="utf-8") as fh:
     wr = csv.writer(fh)
     wr.writerow(["workload", "policy", "eps", "call_share", "share_lo", "share_hi", "cell_error", "err_lo", "err_hi",
                  "any_violation_rate"])

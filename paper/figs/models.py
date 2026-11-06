@@ -13,6 +13,7 @@ MODELS = [  # label, explore_eval file, model id basename (signed / gold files),
     ("Qwen2.5-1.5B (primary)", "explore_eval.json", "Qwen2.5-1.5B-Instruct"),
     ("Qwen2.5-3B", "explore_eval_model3.json", "Qwen2.5-3B-Instruct"),
     ("Qwen2.5-7B", "explore_eval_7b.json", "Qwen2.5-7B-Instruct"),
+    ("Qwen2.5-14B", "explore_eval_14b.json", "Qwen2.5-14B-Instruct"),
     ("Phi-3.5-mini (3.8B)", "explore_eval_phi.json", "Phi-3.5-mini-instruct"),
 ]
 

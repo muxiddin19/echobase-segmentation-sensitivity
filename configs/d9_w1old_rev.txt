@@ -1,0 +1,17 @@
+# D9 share: w1old from the end (university cluster, after placebo b; gpulab2 runs w1old from the start)
+TS3003d
+TS3003c
+TS3003b
+TS3003a
+IS1009d
+IS1009c
+IS1009b
+IS1009a
+ES2004d
+ES2004c
+ES2004b
+ES2004a
+EN2002d
+EN2002c
+EN2002b
+EN2002a

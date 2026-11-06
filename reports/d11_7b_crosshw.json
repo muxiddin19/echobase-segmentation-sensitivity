@@ -1,0 +1,49 @@
+{
+ "a": "v2-Qwen2.5-7B-Instruct (A100 80GB, fp32)",
+ "b": "d11-7b-cpu (CPU fp32, gp231 i9-7900X, 8 threads)",
+ "weights": "a09a35458c702b33eeacc393d103063234e8bc28, files copied from the A100 host, sha256 identical",
+ "meetings": [
+  "EN2002a",
+  "IS1009a"
+ ],
+ "labels": 2467,
+ "mismatch": 0,
+ "files": {
+  "action_item/EN2002a": {
+   "n": 746,
+   "label_mismatch": 0,
+   "max_margin_diff": 0.00020599365234375
+  },
+  "action_item/IS1009a": {
+   "n": 195,
+   "label_mismatch": 0,
+   "max_margin_diff": 0.0001811981201171875
+  },
+  "entity_count/IS1009a": {
+   "n": 195,
+   "label_mismatch": 0,
+   "max_margin_diff": 0.0001583099365234375
+  },
+  "question/EN2002a": {
+   "n": 746,
+   "label_mismatch": 0,
+   "max_margin_diff": 0.0003814697265625
+  },
+  "question/IS1009a": {
+   "n": 195,
+   "label_mismatch": 0,
+   "max_margin_diff": 0.0003452301025390625
+  },
+  "sentiment/IS1009a": {
+   "n": 195,
+   "label_mismatch": 0,
+   "max_margin_diff": 0.0002307891845703125
+  },
+  "topic/IS1009a": {
+   "n": 195,
+   "label_mismatch": 0,
+   "max_margin_diff": 0.0002193450927734375
+  }
+ },
+ "note": "run stopped by an unplanned host reboot at 2026-11-05 20:05 KST during EN2002a; every file written before it is compared (IS1009a all five columns, EN2002a action_item and question)"
+}

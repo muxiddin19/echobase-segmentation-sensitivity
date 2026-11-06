@@ -67,6 +67,7 @@ PARAPHRASES = {  # D7: three further rewordings, fixed before any run; answer se
 WINDOWS = (100, 150)  # D7: alternative fixed chunk sizes in words (the locked chunker uses 120)
 CONTEXT = 2  # D6 mitigation: segments of context on each side, fixed before any run
 MAX_MEM = os.environ.get("POST_MAX_MEM", "11GiB")  # weights per card; lower it to leave room for activations (Phi: 9GiB)
+CPU_MEM = os.environ.get("POST_CPU_MEM")  # D9: layers that do not fit the cards stay in RAM (14B fp32 on 2x12 GB)
 DTYPE = getattr(torch, os.environ.get("POST_DTYPE", "float32"))  # D6 7B on an A100: bfloat16
 BUDGET = int(os.environ.get("POST_BUDGET", "3072"))  # tokens per batch (Scorer default 3072; Phi fp32 needs 1536)
 
@@ -78,14 +79,21 @@ class SplitScorer(Scorer):
 
     def __init__(self, model_id, gpus, variant="none"):
         self.variant = variant
-        if len(gpus) == 1:
+        if os.environ.get("POST_DEVICE") == "cpu":  # D11: CPU-only cross-hardware check (7B), no GPU involved
+            self.tok = AutoTokenizer.from_pretrained(model_id)
+            self.tok.padding_side = "left"
+            self.model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=DTYPE, device_map={"": "cpu"}).eval()
+            self.device = "cpu"
+            self.id = f"{model_id}/{str(DTYPE).split('.')[-1]}/cpu"
+            self.calls = 0
+        elif len(gpus) == 1 and not CPU_MEM:  # D9: one card plus CPU offload takes the split path
             super().__init__(model_id=model_id, gpu=gpus[0], dtype=DTYPE)
         else:
             self.tok = AutoTokenizer.from_pretrained(model_id)
             self.tok.padding_side = "left"
             self.model = AutoModelForCausalLM.from_pretrained(
                 model_id, torch_dtype=DTYPE, device_map="auto",
-                max_memory={g: MAX_MEM for g in gpus}).eval()
+                max_memory={g: MAX_MEM for g in gpus} | ({"cpu": CPU_MEM} if CPU_MEM else {})).eval()
             self.device = f"cuda:{gpus[0]}"
             self.id = f"{model_id}/{str(DTYPE).split('.')[-1]}/split"
             self.calls = 0

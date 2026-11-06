@@ -1,0 +1,20 @@
+{
+ "files": 867,
+ "labels": 13056,
+ "mismatch": 0,
+ "max_margin_diff": 0.002044677734375,
+ "per_column": {
+  "doc_date": {
+   "labels": 4352,
+   "mismatch": 0
+  },
+  "doc_entity_count": {
+   "labels": 4352,
+   "mismatch": 0
+  },
+  "doc_topic": {
+   "labels": 4352,
+   "mismatch": 0
+  }
+ }
+}

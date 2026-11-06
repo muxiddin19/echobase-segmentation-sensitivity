@@ -1,0 +1,8 @@
+{
+ "hosts": "gp231 (TITAN Xp, one card + CPU offload) vs gpulab2 (two TITAN Xp + CPU offload)",
+ "version": "placebo",
+ "files": 11,
+ "labels": 6804,
+ "mismatch": 0,
+ "max_margin_diff": 0.000705718994140625
+}

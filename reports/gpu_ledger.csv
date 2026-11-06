@@ -18,3 +18,6 @@ date,experiment,run_id,gpu_h
 2026-10-29,d6,d6/7b-fp32 (xvoice A100 GPU0 shared; 15:45-22:19 KST),6.570
 2026-10-30,d7,d7/scale-1.5B+determinism+crosshost (gp231 GPU0; 10:40-17:04 KST),6.400
 2026-10-30,d7,d7/para2-4+wikisize (gp231 GPU1; 10:40-11:59 KST incl. a failed launch),1.320
+2026-11-05,d9,d9/14b-fp32 AMI+wiki (gpulab2 GPU0+1 + CPU offload; Nov 4 11:22 - Nov 5 09:31 KST; 22.15 h x 2 cards; excludes the earlier determinism check),44.300
+2026-11-04,d9,d9/14b determinism+partial wiki (gp8 GPU1 + CPU offload; 15:10-22:30 KST incl. two aborted launches; stopped by host reboot),7.330
+2026-11-04,d9,d9/14b cross-host placebo check (gp231 GPU1 + CPU offload; 15:40-16:57 KST incl. a failed launch; stopped by GPU OOM),1.280

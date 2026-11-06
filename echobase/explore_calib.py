@@ -24,6 +24,7 @@ PAIRS = {  # name: (cache A, cache B); both on the manual segmentation
     "model 1.5B->3B": ("v2", "v2-Qwen2.5-3B-Instruct"),
     "model 1.5B->Phi-3.5-mini": ("v2", "v2-Phi-3.5-mini-instruct"),
     "model 1.5B->7B": ("v2", "v2-Qwen2.5-7B-Instruct"),
+    "model 1.5B->14B": ("v2", "v2-Qwen2.5-14B-Instruct"),  # D9
     "prompt 1.5B paraphrase": ("v2", "v2-para"),
     "prompt 1.5B paraphrase 2": ("v2", "v2-para2"),  # D7: three further rewordings
     "prompt 1.5B paraphrase 3": ("v2", "v2-para3"),

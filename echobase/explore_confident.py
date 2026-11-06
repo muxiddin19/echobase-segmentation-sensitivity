@@ -22,7 +22,8 @@ ROOT = Path(__file__).resolve().parents[1]
 EB = ROOT / "outputs" / "echobase"
 MARGIN = 2.0
 CACHES = {"Qwen2.5-0.5B": "v2-Qwen2.5-0.5B-Instruct", "Qwen2.5-1.5B": "v2", "Qwen2.5-3B": "v2-Qwen2.5-3B-Instruct",
-          "Qwen2.5-7B": "v2-Qwen2.5-7B-Instruct", "Phi-3.5-mini": "v2-Phi-3.5-mini-instruct"}
+          "Qwen2.5-7B": "v2-Qwen2.5-7B-Instruct", "Qwen2.5-14B": "v2-Qwen2.5-14B-Instruct",
+          "Phi-3.5-mini": "v2-Phi-3.5-mini-instruct"}
 PAIRS = {"W1": ("w1old", "manual"), "W2": ("manual", "placebo")}
 QUERIES = {"Q1": ("action_item", "yes"), "Q2": ("question", "yes")}
 

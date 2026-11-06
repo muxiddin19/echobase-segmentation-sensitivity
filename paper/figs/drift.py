@@ -24,7 +24,7 @@ for name, label in (("W3", "W3 speaker count (Q1)"),):  # E6 has its own figure 
     if r and "median" in r:
         rows.append((label, r["median"], r["ci"][0], r["ci"][1], None, False))
 
-plt.rcParams.update({"font.family": "serif", "font.size": 8, "axes.linewidth": 0.6})
+plt.rcParams.update({"font.family": "serif", "font.size": 8, "axes.linewidth": 0.6, "pdf.fonttype": 42})
 fig, ax = plt.subplots(figsize=(3.4, 0.32 * len(rows) + 0.55))
 for i, (label, med, lo, hi, T, confirm) in enumerate(rows):
     y = len(rows) - 1 - i

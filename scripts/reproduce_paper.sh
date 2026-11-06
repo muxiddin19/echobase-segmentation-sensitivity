@@ -28,13 +28,14 @@ $PY -m echobase.e5_maintenance --workload w1 --out "$OUT/e5_w1.json"
 $PY -m echobase.e5_maintenance --workload w3 --out "$OUT/e5_w3.json"
 
 # post-hoc analyses (deviations D5, D6 in reports/deviations.md), from the cached labels of every scorer
-for M in Qwen2.5-0.5B-Instruct Qwen2.5-1.5B-Instruct Qwen2.5-3B-Instruct Qwen2.5-7B-Instruct Phi-3.5-mini-instruct; do
+for M in Qwen2.5-0.5B-Instruct Qwen2.5-1.5B-Instruct Qwen2.5-3B-Instruct Qwen2.5-7B-Instruct Qwen2.5-14B-Instruct Phi-3.5-mini-instruct; do
   ORG=Qwen; [ "$M" = Phi-3.5-mini-instruct ] && ORG=microsoft
   $PY -m echobase.explore_signed --model "$ORG/$M" --out "$OUT/explore_signed_$M.json"
   $PY -m echobase.explore_gold --model "$ORG/$M" --out "$OUT/explore_gold_$M.json"
 done
 $PY -m echobase.explore_eval --model Qwen/Qwen2.5-3B-Instruct --out "$OUT/explore_eval_model3.json"
 $PY -m echobase.explore_eval --model Qwen/Qwen2.5-7B-Instruct --out "$OUT/explore_eval_7b.json"
+$PY -m echobase.explore_eval --model Qwen/Qwen2.5-14B-Instruct --out "$OUT/explore_eval_14b.json"  # D9
 $PY -m echobase.explore_eval --model microsoft/Phi-3.5-mini-instruct --out "$OUT/explore_eval_phi.json"
 $PY -m echobase.explore_eval --cache v2-ctx --out "$OUT/explore_eval_ctx.json"
 $PY -m echobase.explore_signed --cache v2-ctx --out "$OUT/explore_signed_ctx.json"
@@ -51,6 +52,7 @@ $PY -m echobase.explore_pooled --workload w3 --out "$OUT/explore_pooled_w3.json"
 $PY -m echobase.explore_chunksize --out "$OUT/explore_chunksize.json"
 $PY -m echobase.explore_crosshost --a v2 --b v2-gp231-check --out "$OUT/post_crosshost_1.5b.json"
 $PY -m echobase.explore_cost --out "$OUT/explore_cost.json"  # review 4: calls and prompt tokens per version (tokenizer only)
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 $PY -m echobase.explore_scalability --out "$OUT/explore_scalability.json"  # D11; wall times vary by machine
 
 # Compare with the released reports. Floats are compared to a relative 1e-9: the topic-distance queries sum over a
 # Python set, whose order (string hashing) varies between runs, so their last digit can differ. NaN equals NaN.
@@ -73,6 +75,9 @@ for f in sorted(out.glob("*.json")):
     for d in (a, b):
         if isinstance(d, dict):
             d.pop("wall_clock_s", None)
+    if f.name == "explore_scalability.json":  # D11: timings depend on the machine; cells, calls and shares must match
+        a, b = ([[s["cells"], {p: [v["calls"], v["call_share"], v["cell_error"]] for p, v in s["policies"].items()}]
+                 for s in d["sizes"]] for d in (a, b))
     s = same(a, b)
     ok &= s
     print(f"{'same' if s else 'DIFFERS'}  {f.name}")
@@ -82,7 +87,7 @@ EOF
 # tables, figures and the numbers in the text (from the released reports, which the step above showed identical)
 $PY paper/figs/workloads.py && $PY paper/figs/example.py
 $PY paper/figs/drift.py && $PY paper/figs/drift_all.py && $PY paper/figs/per_unit.py && $PY paper/figs/maintenance.py
-$PY paper/figs/gold.py && $PY paper/figs/scale.py && $PY paper/figs/models.py && $PY paper/figs/cost.py
+$PY paper/figs/gold.py && $PY paper/figs/scale.py && $PY paper/figs/scalability.py && $PY paper/figs/models.py && $PY paper/figs/cost.py
 $PY paper/gen_numbers.py
 (cd paper && pdflatex -interaction=nonstopmode main.tex >/dev/null && bibtex main >/dev/null \
   && pdflatex -interaction=nonstopmode main.tex >/dev/null && pdflatex -interaction=nonstopmode main.tex >/dev/null) \

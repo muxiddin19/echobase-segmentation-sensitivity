@@ -15,7 +15,7 @@ conf = {r["id"]: r for r in json.loads((ROOT / "reports" / "confirmatory.json").
 w1, w2 = conf["H1"]["per_unit"], conf["H2"]["per_unit"]
 ms = sorted(w1, key=lambda m: w1[m])
 
-plt.rcParams.update({"font.family": "serif", "font.size": 7.5, "axes.linewidth": 0.6})
+plt.rcParams.update({"font.family": "serif", "font.size": 7.5, "axes.linewidth": 0.6, "pdf.fonttype": 42})
 fig, ax = plt.subplots(figsize=(3.4, 2.9))
 for y, m in enumerate(ms):
     ax.plot([w1[m], w2[m]], [y, y], color=LINE, lw=1.2, zorder=1)

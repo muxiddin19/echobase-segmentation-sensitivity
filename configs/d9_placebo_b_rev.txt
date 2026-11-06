@@ -1,0 +1,9 @@
+# D9 share: placebo, second half from the end (gp231 card 1, after d9_placebo_a)
+TS3003d
+TS3003c
+TS3003b
+TS3003a
+IS1009d
+IS1009c
+IS1009b
+IS1009a

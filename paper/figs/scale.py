@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 INK, GRAY = "#1a1a1a", "#8c8c8c"
 sc = json.loads((ROOT / "reports" / "explore_scale.json").read_text())
 
-plt.rcParams.update({"font.family": "serif", "font.size": 8, "axes.linewidth": 0.6})
+plt.rcParams.update({"font.family": "serif", "font.size": 8, "axes.linewidth": 0.6, "pdf.fonttype": 42})
 fig, ax = plt.subplots(figsize=(3.4, 1.9))
 for w, color, marker, dx, label in (("W1", INK, "o", 0.96, "W1 diarizer → manual"), ("W2", GRAY, "s", 1.04, "W2 placebo")):
     nested = sc["pairs"][w]["Q1"]["nested"]
