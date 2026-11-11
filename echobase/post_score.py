@@ -134,7 +134,7 @@ def meeting_list(spec):
     return [l.strip() for l in Path(spec).read_text().splitlines() if l.strip() and not l.startswith("#")]
 
 
-def score_ami(scorer, out, ms, versions):
+def score_ami(scorer, out, ms, versions, cols=AMI_COLS):
     for v in versions:
         for m in ms:
             if v == "w1old" and not (ROOT / "outputs" / "diar" / f"{m}.json").exists():
@@ -148,7 +148,7 @@ def score_ami(scorer, out, ms, versions):
                 pos = {i: p for p, i in enumerate(order)}
                 inputs = [(" / ".join(texts[j] for j in order[max(0, pos[i] - CONTEXT):pos[i]]), texts[i],
                            " / ".join(texts[j] for j in order[pos[i] + 1:pos[i] + 1 + CONTEXT])) for i in range(len(texts))]
-            for col in AMI_COLS:
+            for col in cols:
                 f = out / v / col / f"{m}.json"
                 if f.exists():
                     continue
@@ -162,7 +162,7 @@ def chunk_window(words, w):
     return [(i, min(i + w, len(words))) for i in range(0, len(words), w)]
 
 
-def score_wiki(scorer, out, sizes=False):
+def score_wiki(scorer, out, sizes=False, cols=DOC_COLS):
     for art in articles("test"):
         words, paras = words_and_paragraphs(art["text"])
         if sizes:  # D7: the same fixed chunker at other window sizes
@@ -171,7 +171,7 @@ def score_wiki(scorer, out, sizes=False):
             versions = [("fixed", chunk_fixed(words)), ("para", chunk_paragraphs(words, paras))]
         for name, chunks in versions:
             texts = [" ".join(words[s:e]) for s, e in chunks]
-            for col in DOC_COLS:
+            for col in cols:
                 f = out / "wiki" / name / col / f"{art['id']}.json"
                 if f.exists():
                     continue
@@ -203,6 +203,7 @@ if __name__ == "__main__":
     ap.add_argument("--variant", choices=["none", "ctx", *PARAPHRASES], default="none")  # D6/D7 prompt variants
     ap.add_argument("--cache-name", help="D7: cache dir under outputs/echobase instead of the model's (scale runs)")
     ap.add_argument("--out")
+    ap.add_argument("--cols", help="D15: comma-separated columns to score (default: all of the mode's columns)")
     a = ap.parse_args()
     require_g1("post-hoc scoring")
     scorer = SplitScorer(a.model, [int(g) for g in a.gpus.split(",")], a.variant)
@@ -212,8 +213,8 @@ if __name__ == "__main__":
     if a.cache_name:
         out = ROOT / "outputs" / "echobase" / a.cache_name
     if a.mode == "ami":
-        score_ami(scorer, out, meeting_list(a.meetings), a.versions.split(","))
+        score_ami(scorer, out, meeting_list(a.meetings), a.versions.split(","), a.cols.split(",") if a.cols else AMI_COLS)
     elif a.mode in ("wiki", "wikisize"):
-        score_wiki(scorer, out, sizes=a.mode == "wikisize")
+        score_wiki(scorer, out, sizes=a.mode == "wikisize", cols=a.cols.split(",") if a.cols else DOC_COLS)
     else:
         check(scorer, out, a.out)

@@ -45,7 +45,7 @@ if conf:
 
 for tag, fname in (("", "explore_eval.json"), ("Mtwo", "explore_eval_model2.json"), ("Mthree", "explore_eval_model3.json"),
                    ("Ctx", "explore_eval_ctx.json"), ("Mphi", "explore_eval_phi.json"), ("Mseven", "explore_eval_7b.json"),
-                   ("Mfourteen", "explore_eval_14b.json")):
+                   ("Mfourteen", "explore_eval_14b.json"), ("Mthirtytwo", "explore_eval_32b.json")):  # 32B: D15
     ex = load(fname)
     if not ex:
         continue
@@ -103,7 +103,7 @@ if pw.exists():
 
 for tag, model in (("", "Qwen2.5-1.5B-Instruct"), ("Mtwo", "Qwen2.5-0.5B-Instruct"), ("Mthree", "Qwen2.5-3B-Instruct"),
                    ("Ctx", "ctx"), ("Mphi", "Phi-3.5-mini-instruct"), ("Mseven", "Qwen2.5-7B-Instruct"),
-                   ("Mfourteen", "Qwen2.5-14B-Instruct")):
+                   ("Mfourteen", "Qwen2.5-14B-Instruct"), ("Mthirtytwo", "Qwen2.5-32B-Instruct")):
     sg = load(f"explore_signed_{model}.json")  # D5: direction and absolute size
     if sg:
         for w, qs in sg["ami"].items():
@@ -290,6 +290,13 @@ dt = load("post_determinism_14b.json")
 if dt:
     put("DetFourteenN", sum(c["n"] for c in dt["columns"].values()))
     put("DetFourteenmism", sum(c["mismatch_budgets"] for c in dt["columns"].values()))
+dt = [r for r in (load("post_determinism_32b.json"), load("post_determinism_32b_1g.json"), load("post_determinism_32b_gp146.json")) if r]  # D15 gate g2
+if dt:
+    put("DetThirtytwoN", sum(c["n"] for r in dt for c in r["columns"].values()))
+    put("DetThirtytwomism", sum(c["mismatch_budgets"] for r in dt for c in r["columns"].values()))
+ec = load("d15_env_check.json")  # D15 gate g1: primary scorer on the cluster vs its released labels
+if ec:
+    put("EnvCheckN", sum(c["n"] for c in ec.values())); put("EnvCheckmism", sum(c["label_mismatch"] for c in ec.values()))
 x7 = load("d11_7b_crosshw.json")  # D11 (b): 7B, A100 vs CPU
 if x7:
     put("XhwSevenN", f"{x7['labels']:,}"); put("XhwSevenmism", x7["mismatch"])
@@ -310,8 +317,108 @@ if sl:
         put(f"Scal{tag}share", big["policies"][p]["call_share"]); put(f"Scal{tag}shareRep", top["policies"][p]["call_share"])
     put("ScalRSSRep", top["peak_rss_mb"] / 1024, "{:.1f}")
 
+ac = load("explore_aggcert.json")  # D12: sample-based certification of the aggregate answer
+if ac:
+    W = ac["workloads"]
+    put("AcCovNominal", 95, "{}")
+    for f, tag in ((0.1, "Ten"), (0.4, "Forty")):
+        rows = [W[wl]["by"][f"{c}@{f}"] for wl in W for c in ("action_item", "question")]
+        put(f"AcShareWone{tag}", W["w1"]["by"][f"action_item@{f}"]["call_share"], "{:.2f}")
+        for e, et in (("sample", "S"), ("difference", "D")):
+            put(f"AcCovMin{et}{tag}", 100 * min(r[e]["coverage"] for r in rows), "{:.0f}")
+            put(f"AcCovMax{et}{tag}", 100 * max(r[e]["coverage"] for r in rows), "{:.0f}")
+            put(f"AcHwWoneQone{et}{tag}", W["w1"]["by"][f"action_item@{f}"][e]["median_halfwidth_pts"], "{:.1f}")
+            put(f"AcHwWthreeQone{et}{tag}", W["w3"]["by"][f"action_item@{f}"][e]["median_halfwidth_pts"], "{:.1f}")
+    ratios = [W[wl]["by"][k]["difference"]["median_halfwidth_pts"] / W[wl]["by"][k]["sample"]["median_halfwidth_pts"]
+              for wl in W for k in W[wl]["by"]]
+    put("AcRatioMin", min(ratios), "{:.2f}"); put("AcRatioMax", max(ratios), "{:.2f}")
+
+orc = load("explore_oracle.json")  # D14: non-LLM reference scorers; series check
+if orc:
+    w4 = orc["wiki"]["W4"]
+    put("OrWfourRefAbs", w4["Qwen2.5-1.5B-Instruct"]["abs_ref"]["median"], "{:.1f}")
+    put("OrWfourRefSgn", w4["Qwen2.5-1.5B-Instruct"]["signed_ref"]["median"], "{:+.1f}")
+    put("OrWfourExMin", min(v["abs_excess"]["median"] for v in w4.values()), "{:.1f}")
+    put("OrWfourExMax", max(v["abs_excess"]["median"] for v in w4.values()), "{:.1f}")
+    put("OrWfourExLoMin", min(v["abs_excess"]["ci"][0] for v in w4.values()), "{:.1f}")
+    put("OrWfourRhoFourteen", w4["Qwen2.5-14B-Instruct"]["spearman"], "{:.2f}")
+    put("OrWfourRhoMax", max(v["spearman"] for v in w4.values()), "{:.2f}")
+    put("OrWfourRhoMin", min(v["spearman"] for v in w4.values()), "{:.2f}")
+    six = {k: v for k, v in w4.items() if k != "Qwen2.5-32B-Instruct"}  # D15: the six earlier scorers, and 32B alone
+    put("OrWfourExMinSix", min(v["abs_excess"]["median"] for v in six.values()), "{:.1f}")
+    put("OrWfourExLoMinSix", min(v["abs_excess"]["ci"][0] for v in six.values()), "{:.1f}")
+    put("OrWfourRhoMaxSix", max(v["spearman"] for v in six.values()), "{:.2f}")
+    if "Qwen2.5-32B-Instruct" in w4:
+        t = w4["Qwen2.5-32B-Instruct"]
+        put("OrWfourExThirtytwo", t["abs_excess"]["median"], "{:.1f}")
+        put("OrWfourExThirtytwoLo", t["abs_excess"]["ci"][0], "{:.1f}")
+        put("OrWfourExThirtytwoHi", t["abs_excess"]["ci"][1], "{:.1f}")
+        put("OrWfourRhoThirtytwo", t["spearman"], "{:.2f}")
+        put("OrWfourSgnLlmThirtytwo", t["signed_llm"]["median"], "{:+.1f}")
+        put("OrWfourSgnRefThirtytwo", t["signed_ref"]["median"], "{:+.1f}")
+    am = orc["ami"]
+    # review of 2026-11-10: the scorer-specific part by Qwen size (descriptive, measured sizes only)
+    QW = [f"Qwen2.5-{s}-Instruct" for s in ("0.5B", "1.5B", "3B", "7B", "14B", "32B")]
+    def seq(d):
+        v = [f"{d[m]['abs_excess']['median']:.1f}" for m in QW if m in d]
+        return ", ".join(v[:-1]) + " and " + v[-1]
+    put("OrWfourExQwenSeq", seq(w4), "{}")
+    put("OrWtwoQuExQwenSeq", seq(am["W2"]["question"]), "{}")
+    put("OrWtwoAcExQwenSeq", seq(am["W2"]["action_item"]), "{}")
+    put("OrWfourExHalf", w4["Qwen2.5-0.5B-Instruct"]["abs_excess"]["median"], "{:.1f}")
+    put("OrWfourExPhi", w4["Phi-3.5-mini-instruct"]["abs_excess"]["median"], "{:.1f}")
+    k8x = am["E6_k8"]["action_item"]["Qwen2.5-1.5B-Instruct"]["abs_excess"]
+    put("OrKeightEx", k8x["median"], "{:.1f}"); put("OrKeightExLo", k8x["ci"][0], "{:.1f}")
+    put("OrKeightExHi", k8x["ci"][1], "{:.1f}")
+    for wl, tag in (("W1", "Wone"), ("W2", "Wtwo")):
+        for col, ct in (("action_item", "Ac"), ("question", "Qu")):
+            put(f"Or{tag}Ref{ct}", am[wl][col]["Qwen2.5-1.5B-Instruct"]["abs_ref"]["median"], "{:.1f}")
+    ex = [v["abs_excess"] for wl in ("W1", "W2") for col in ("action_item", "question") for v in am[wl][col].values()]
+    put("OrAmiExMin", min(e["median"] for e in ex), "{:.1f}"); put("OrAmiExMax", max(e["median"] for e in ex), "{:.1f}")
+    put("OrAmiExLoMin", min(e["ci"][0] for e in ex), "{:.1f}")
+    w3 = am["W3"]["action_item"]["Qwen2.5-1.5B-Instruct"]
+    put("OrWthreeEx", w3["abs_excess"]["median"], "{:.1f}"); put("OrWthreeExLo", w3["abs_excess"]["ci"][0], "{:.1f}")
+    put("OrWthreeRef", w3["abs_ref"]["median"], "{:.1f}")
+    k8 = am["E6_k8"]["action_item"]["Qwen2.5-1.5B-Instruct"]
+    put("OrKeightRef", k8["signed_ref"]["median"], "{:+.1f}"); put("OrKeightLlm", k8["signed_llm"]["median"], "{:+.1f}")
+    k8q = am["E6_k8"]["question"]["Qwen2.5-1.5B-Instruct"]
+    put("OrKeightRefQu", k8q["signed_ref"]["median"], "{:+.1f}"); put("OrKeightLlmQu", k8q["signed_llm"]["median"], "{:+.1f}")
+    se = orc["series"]
+    put("SerHoneMin", min(se["H1"]["series_median"].values())); put("SerHoneMax", max(se["H1"]["series_median"].values()))
+    put("LosoHoneMin", min(se["H1"]["leave_one_series_out_median"].values()))
+    put("LosoHtwoMin", min(se["H2"]["leave_one_series_out_median"].values()))
+
+# Ranges over the six scorers (rewrite of 2026-11-07), derived from the macros above
+SIX = ("", "Mtwo", "Mthree", "Mseven", "Mfourteen", "Mphi", "Mthirtytwo")  # D15: the 32B scorer counts where complete
+WORD = {6: "six", 7: "seven"}
+def rng(fmt_name, scale=1.0, f="{:.1f}"):
+    vals = [float(macros[fmt_name.format(m)].replace("+", "")) * scale for m in SIX if fmt_name.format(m) in macros]
+    return (f.format(min(vals)), f.format(max(vals))) if len(vals) >= 6 else None
+for tag, key in (("Chunk", "SgWikiQdone{}absmag"), ("Placebo", "SgWtwoQone{}absmag"), ("Wone", "SgWoneQone{}absmag")):
+    r = rng(key)
+    if r:
+        put(f"Six{tag}AbsMin", r[0]); put(f"Six{tag}AbsMax", r[1])
+        put(f"Six{tag}N", WORD[sum(key.format(m) in macros for m in SIX)])  # "six" or "seven" scorers
+r = rng("SgWikiQdone{}abs")
+if r:
+    put("SixChunkSgnMin", r[0]); put("SixChunkSgnMax", "+" + r[1] if not r[1].startswith("-") else r[1])
+r = rng("SgWtwoQone{}up", f="{:.0f}")
+if r:
+    put("SixPlaceboUpMin", r[0]); put("SixPlaceboUpMax", r[1])
+ds = [float(macros[k.format(m)]) for m in SIX for k in ("WoneQone{}med", "WtwoQone{}med", "WikiQdone{}med")
+      if m and k.format(m) in macros] + [float(macros[k]) for k in ("Honemed", "Htwomed", "Hfourmed") if k in macros]
+if len(ds) >= 18:
+    put("SixDMin", min(ds), "{:.3f}")  # 3 decimals: the 32B W4 value 0.096 must not round up to 0.10
+r = rng("SgWoneQone{}old")
+if r:
+    put("SixBaseMin", r[0]); put("SixBaseMax", r[1])
+
 lines = ["% generated by paper/gen_numbers.py from reports/*.json -- do not edit",
          r"\providecommand{\missing}[1]{\textbf{\textcolor{red}{??#1}}}"]
-lines += [f"\\newcommand{{\\n{k}}}{{{v}}}" for k, v in sorted(macros.items())]
+def minus(v):  # a leading hyphen prints as a hyphen in text; use a true minus (no macro is used inside math)
+    return "\\textminus{}" + v[1:] if len(v) > 1 and v[0] == "-" and v[1].isdigit() else v
+
+
+lines += [f"\\newcommand{{\\n{k}}}{{{minus(v)}}}" for k, v in sorted(macros.items())]
 OUT.write_text("\n".join(lines) + "\n", encoding="utf-8")
 print(f"{len(macros)} macros -> {OUT.relative_to(ROOT)}")

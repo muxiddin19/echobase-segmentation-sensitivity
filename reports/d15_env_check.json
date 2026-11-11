@@ -1,0 +1,27 @@
+{
+ "action_item": {
+  "n": 195,
+  "label_mismatch": 0,
+  "max_margin_diff": 7.05718994140625e-05
+ },
+ "question": {
+  "n": 195,
+  "label_mismatch": 0,
+  "max_margin_diff": 8.392333984375e-05
+ },
+ "entity_count": {
+  "n": 195,
+  "label_mismatch": 0,
+  "max_margin_diff": 0.000102996826171875
+ },
+ "sentiment": {
+  "n": 195,
+  "label_mismatch": 0,
+  "max_margin_diff": 0.0001583099365234375
+ },
+ "topic": {
+  "n": 195,
+  "label_mismatch": 0,
+  "max_margin_diff": 0.00016021728515625
+ }
+}

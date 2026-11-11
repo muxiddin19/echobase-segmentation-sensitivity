@@ -36,6 +36,11 @@ done
 $PY -m echobase.explore_eval --model Qwen/Qwen2.5-3B-Instruct --out "$OUT/explore_eval_model3.json"
 $PY -m echobase.explore_eval --model Qwen/Qwen2.5-7B-Instruct --out "$OUT/explore_eval_7b.json"
 $PY -m echobase.explore_eval --model Qwen/Qwen2.5-14B-Instruct --out "$OUT/explore_eval_14b.json"  # D9
+if [ -d outputs/echobase/v2-Qwen2.5-32B-Instruct ]; then  # D15: the 32B scorer (action item, question, doc date only)
+  $PY -m echobase.explore_eval --partial --model Qwen/Qwen2.5-32B-Instruct --out "$OUT/explore_eval_32b.json"
+  $PY -m echobase.explore_signed --model Qwen/Qwen2.5-32B-Instruct --out "$OUT/explore_signed_Qwen2.5-32B-Instruct.json"
+  $PY -m echobase.explore_gold --model Qwen/Qwen2.5-32B-Instruct --out "$OUT/explore_gold_Qwen2.5-32B-Instruct.json"
+fi
 $PY -m echobase.explore_eval --model microsoft/Phi-3.5-mini-instruct --out "$OUT/explore_eval_phi.json"
 $PY -m echobase.explore_eval --cache v2-ctx --out "$OUT/explore_eval_ctx.json"
 $PY -m echobase.explore_signed --cache v2-ctx --out "$OUT/explore_signed_ctx.json"
@@ -53,6 +58,8 @@ $PY -m echobase.explore_chunksize --out "$OUT/explore_chunksize.json"
 $PY -m echobase.explore_crosshost --a v2 --b v2-gp231-check --out "$OUT/post_crosshost_1.5b.json"
 $PY -m echobase.explore_cost --out "$OUT/explore_cost.json"  # review 4: calls and prompt tokens per version (tokenizer only)
 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 $PY -m echobase.explore_scalability --out "$OUT/explore_scalability.json"  # D11; wall times vary by machine
+$PY -m echobase.explore_aggcert --out "$OUT/explore_aggcert.json"  # D12
+$PY -m echobase.explore_oracle --out "$OUT/explore_oracle.json"  # D14
 
 # Compare with the released reports. Floats are compared to a relative 1e-9: the topic-distance queries sum over a
 # Python set, whose order (string hashing) varies between runs, so their last digit can differ. NaN equals NaN.

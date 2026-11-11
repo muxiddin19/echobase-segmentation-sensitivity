@@ -51,6 +51,8 @@ if __name__ == "__main__":
             continue
         res["ami"][name] = {}
         for q, (col, target) in drift.AMI_QUERIES.items():
+            if not all((drift.V2 / v / col / f"{m}.json").exists() for v in (o, n) for m in meetings("eval")):
+                continue  # D15: the 32B run scored only the action-item and question columns
             olds, news = [], []
             for m in meetings("eval"):
                 vo, lo = drift.ami_load(o, col, m)

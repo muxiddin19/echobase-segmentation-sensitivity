@@ -321,3 +321,191 @@ supplementary material.
   again at 10:53. Crashes within a minute of boot point to a host hardware or power fault rather than the run's load;
   the cause is still unconfirmed. The result above is unaffected (files verified complete). No further runs on gp231
   until it is repaired.
+
+## D12: Sample-based certification of the aggregate answer (2026-11-06 13:00 KST, before any code or result)
+
+**Why.** A sixth independent review (an AI assistant acting as an ICDE referee, 2026-11-06) judged the maintenance
+section a purely negative result: per-cell reuse saves nothing over content hashing. It asked whether the *query
+answer*, rather than every cell, can be re-certified after a re-segmentation for fewer LLM calls. This is post-hoc and
+exploratory, CPU only, from the cached labels of the primary model (no new scoring, no locked file changed).
+
+**Design (fixed now).**
+- Data: the changed cells of the maintenance replay (`e5_maintenance.cells`), workloads W1 and W3, AMI eval (16
+  meetings), binary columns action item and question. Query per meeting and column: the word-weighted yes-share
+  Q(S_new) over all new segments. Unchanged segments and changed cells with identical text (rule `hash`) are known
+  exactly at no cost; the remaining cells R are unknown until scored.
+- Estimators of the R part, from a simple random sample without replacement of n cells of R per meeting and column:
+  (a) **sample**: the expansion estimator N_R x mean(w y);
+  (b) **difference**: the free proxy p (the structural rule's value where a rule fires, else the anchor's old value,
+  else 0) is summed over R and the sample estimates the correction: sum_R(w p) + N_R x mean(w (y - p)).
+  Both with a normal 95% interval and finite-population correction; the interval is reported on Q in percentage
+  points.
+- Sampling fractions f = 0.05, 0.10, 0.20, 0.40 of R (at least 10 cells, all of R if fewer); 1,000 resamples per
+  meeting, column and fraction; seed 0.
+- Reported per workload, column, estimator and fraction: calls as a share of the changed cells (the denominator of
+  the replay's call shares; hash = 0.742 on W1), median interval half-width (points), and empirical coverage of the
+  true Q (pooled over meetings and resamples).
+
+**Rules fixed before results.**
+- An estimator "certifies the answer at 95%" at a fraction only if its pooled coverage is at least 0.93 for every
+  workload and column; otherwise the text reports the coverage as a failure, and no saving is claimed for it.
+- The proxy "helps" only if the difference estimator's median half-width is at most 0.8 times the sample estimator's
+  at the same fraction, for both workloads; otherwise the text says the proxy does not help.
+- The headline is the smallest fraction at which a certifying estimator's median half-width is at most 2 points; its
+  call share is compared with hashing (0.742) and full recomputation (1.0). If no fraction reaches 2 points, the text
+  says so.
+- The guarantee is per query answer (a share with a confidence interval), not per cell; the text states this
+  difference from the per-cell contract of Sec. IX.
+- Output: `reports/explore_aggcert.json`, script `echobase/explore_aggcert.py`, added to `scripts/reproduce_paper.sh`.
+- **Result, 2026-11-06 14:30 KST** (`reports/explore_aggcert.json`, 85 s on one CPU): by the rules above, **neither
+  estimator certifies** a per-meeting answer: pooled coverage of the nominal 95% interval is 0.62-0.93 across workloads,
+  columns and fractions (below 0.93 for at least one workload and column at every fraction), because a meeting has only
+  a few hundred unknown cells with skewed labels. The proxy **helps** (difference half-width 0.45-0.77 of the sample
+  estimator's at every fraction, both workloads). No certifying fraction reaches 2 points, so no saving over hashing is
+  claimed. W1 at f = 0.40 (0.30 of the calls): median half-width 7.9 points with the proxy, 11.0 without. The paper
+  adds one paragraph to Sec. IX and a row to Table III.
+- **Reproduction note (D11 a), 2026-11-06 16:10 KST:** the clean-copy reproduction of release v1.1 on a Windows PC
+  failed at `explore_scalability` (`import resource` is Unix-only); the peak-memory helper now falls back to the
+  Windows peak working set (no effect on cells, calls or shares). Rerun there: cells, calls and shares identical; wall
+  times differ by machine as expected (mapping slope 1.03 on that PC against 0.83 on the i9-7900X; policy slopes
+  0.67-0.96; overhead at most 3.7%), all within the pre-fixed rule for "linear" (slope <= 1.10). The paper reports the
+  i9-7900X run and names its hardware.
+
+## D13: Editorial rewrite after the sixth review (2026-11-07, no new runs)
+Text only; no data, code under the eval lock, or analysis changed. Abstract, findings and conclusion now lead with
+absolute changes across all six scorers (new macros in `paper/gen_numbers.py` are minima and maxima of existing
+per-scorer macros: chunker 5.5-16.0 points per article, placebo 1.0-6.0, W1 0.5-4.4, every median relative drift
+>= 0.10, chunker sign from -3.4 (14B) to +14.4 (0.5B)); W1 is presented as a stress test that is small for the 3B-14B
+scorers; the protocol narrative is shortened (the freeze-check defect is still stated); the per-scorer number wall
+is replaced by statements read from Table IV; one sentence written during the rewrite ("the scorers that agree best
+with human labels drift no less on the chunker") was found false against the table before the build (7B and 14B
+drift least) and corrected. Related work adds eight references, each checked against Crossref or its arXiv page:
+UDA-Bench, Murin 2026 (sensitivity of LLM extraction to prompt, model, schema), BlazeIt, ABae, prediction-powered
+inference, Decibel, OrpheusDB, ModelHub. A second novelty search (12 fixed queries, 2025-2026) found no work that
+measures answer drift under re-segmentation with fixed words; SemReuse and sIVM are unchanged (v1).
+
+## D14: Non-LLM reference scorers and a series-level check (2026-11-07 15:00 KST, before any code or result)
+**Why.** A seventh independent review (an AI assistant acting as an ICDE referee) noted that word-weighted shares of
+"any part" predicates change with segmentation even under a perfect scorer (a unit-of-aggregation effect), so the
+measured drift mixes a part caused by the query definition with a part caused by the LLM; and that the 16 held-out
+meetings come from 4 series of 4 sessions. Post-hoc, exploratory, CPU only, from cached labels and existing data; no
+locked file changes.
+
+**Design (fixed now).**
+- (a) *Documents.* A deterministic date detector applied to exactly the chunks the LLMs scored (the cached `spans`
+  of each chunker over the article's words): a chunk is "yes" if it contains a year 1000-2099 as a standalone
+  four-digit token (optionally followed by "s" or punctuation), or an English month name (January..December; "May"
+  only when adjacent to a number). Pairs: fixed -> para (W4), fixed -> fixed150, fixed -> fixed100; 200 held-out
+  articles. Per article: Qd1 under each chunking, signed change in points, relative drift D with the 0.02 guard.
+- (b) *Meetings.* A segment is "yes" if any of its words lies in a human dialogue act of the column's type (question
+  <- elicit acts, action item <- suggestions; the word projection of `explore_gold`). Pairs: W1 (w1old -> manual),
+  W2 (manual -> placebo), W3 (w3old -> w1old), E6 (manual -> merge k = 2, 4, 8); 16 held-out meetings.
+- For every pair and every scorer with cached labels on it (six on W1, W2, W4; primary on W3, E6 and the window
+  sizes): per unit the LLM change dL and the reference change dR (signed, points); reported are the median |dR|,
+  median |dL|, the median of |dL - dR| (the part not explained by the query definition), each with a 95% BCa
+  interval over units (10,000 resamples, seed 0), and the Spearman correlation of dL and dR.
+- (c) *Series.* For H1 and H2 (per-meeting drifts from `reports/confirmatory.json`): the median within each of the
+  four meeting series and the four leave-one-series-out medians.
+
+**Rules fixed before results.**
+- "The LLM adds drift beyond the query definition" on a pair only if the interval of the median |dL - dR| lies
+  entirely above 1 point; "the definition explains most of the drift" only if the median |dR| is at least half the
+  median |dL|; otherwise the text reports the numbers without either claim.
+- H1 and H2 are "robust to dropping any one series" only if all four leave-one-series-out medians reach their
+  thresholds (0.10 and 0.05); otherwise the text names the series whose removal breaks it.
+- The reference scorers are not ground truth for the LLM columns (the date detector is a rule; dialogue acts are a
+  proxy for action items); the text says so.
+- Output: `reports/explore_oracle.json`, script `echobase/explore_oracle.py`, added to `scripts/reproduce_paper.sh`.
+- **Result, 2026-11-07 16:00 KST** (`reports/explore_oracle.json`, 8 min on one CPU). (a) Documents: the date rule
+  moves an article's dated share by a median 6.0 points under the chunker change (signed -5.0); each scorer's change
+  departs from it by a median 4.0 (14B) to 20.3 (0.5B) points, every interval above 1 point (rule 1 holds for all six;
+  the departure is in either direction, so the text says the LLM "departs from" the reference rather than "adds");
+  Spearman of LLM and reference changes 0.06-0.48. Window sizes (primary): departure 11.6 and 10.4 points. (b) Meetings:
+  the reference moves by 2.3-6.8 points under W1 and the placebo; departures 2.9-20.4 points, every interval above 1
+  for all six scorers and both columns; W3: reference 0.1, departure 1.4 with interval from 0.4 (rule 1 not met);
+  merges: at k = 8 the reference rises by +30.4 against the scorer's +30.9 (action items), so the merge effect is
+  definitional (rule 2 holds). (c) H1 and H2 are robust to dropping any one series (smallest leave-one-series-out
+  medians 0.123 and 0.190; series medians for H1 0.079-0.265). The paper adds one paragraph (Sec. VII), clauses in
+  the abstract, findings, threats and lessons, and a row to Table III.
+
+## D15: A 32B scorer on the university cluster (2026-11-08 11:00 KST, before any run)
+**Why.** Every independent review names the size of the scorers (0.5B-14B) as the main remaining weakness. The
+user gave access to the university SLURM cluster (A100 80 GB nodes, partition p2 of the lab account) on 2026-11-08.
+Post-hoc and exploratory; the confirmatory family and every locked file are unchanged.
+
+**Design (fixed now).**
+- Model: Qwen/Qwen2.5-32B-Instruct, fp32 (bf16 failed the determinism check at 7B), the locked prompts, answer sets
+  and first-token scoring through `echobase.post_score` (split path over the allocated cards, CPU offload only if
+  the allocation is smaller than the fp32 weights). One addition to `post_score`: `--cols` restricts the columns
+  scored (default: all, so earlier commands are unchanged).
+- Gates, in order; a failed gate stops the run and is reported: (g1) environment check: the primary 1.5B scorer
+  on the cluster re-labels meeting IS1009a (manual, all five columns) identically to its released cache; (g2) the
+  32B `check` mode: 0 label mismatches between two batch budgets on 200 segments x 3 columns.
+- Scope, in priority order: (1) Wikipedia W4 (fixed -> para), column doc_date, the 200 held-out articles;
+  (2) AMI W1 and W2 (versions manual, w1old, placebo), columns action_item and question, the 16 held-out meetings.
+- Hard stop: 2026-11-09 20:00 KST. A workload is reported only if all its units are scored; an incomplete one is
+  reported as not completed, with its unit count, and none of its numbers enter the paper.
+- One job at a time on p2, wall-time limit at most 24 h, cancelled at the hard stop; the model files are deleted
+  from the shared account after the run.
+
+**Rules fixed before results.**
+- Completed workloads are reported with the same quantities as the other scorers (median relative drift with the
+  0.02 guard and the preregistered unit minima, median |change| in points, median signed change, sign counts, and
+  the D14 departure from the reference scorer), as a seventh scorer in Table models and in the text.
+- The ranges stated over "all scorers" (abstract, findings, conclusion) then include the 32B scorer whether it
+  widens or narrows them; the text says "seven scorers" for those workloads.
+- If the 32B scorer's median |change| on the chunker is below the smallest of the six (5.5 points), the text says
+  that drift shrinks at this size; if above, that it does not; no extrapolation beyond 32B.
+- Outputs: cache `outputs/echobase/v2-Qwen2.5-32B-Instruct`, gate reports `reports/d15_env_check.json` and
+  `reports/post_determinism_32b.json`, job logs under `journal/`.
+
+### D15 amendment (2026-11-09 17:40 KST, before any 32B drift number is computed or seen)
+- **Host.** The university jobs never started (all A100s busy; the administrator cancelled the pending jobs of the
+  shared account on 2026-11-09 11:50). The run moved to the lab server gp146 (one A100 80 GB, shared by agreement;
+  torch 2.1.2+cu118, transformers 4.44.2, accelerate 0.33.0, the same pins as the cluster plan), fp32 with up to
+  64 GiB of weights on the card and the rest in RAM. Script `scripts/d15_gp146.sh`; it stops itself if the card's
+  free memory falls below 3 GiB.
+- **Gates, as fixed.** g1 passed on gp146 (`reports/d15_env_check.json`: 0 label mismatches, IS1009a, 5 columns x
+  195 segments). g2 passed (`reports/post_determinism_32b_gp146.json`: 0 mismatches between two batch budgets,
+  3 columns x 200 segments). Resumed runs skip label files already written, so every unit is scored once; the
+  batch budget does not change labels (g2).
+- **Hard stop extended** to 2026-11-10 12:00 KST, by the user's decision, so that scope (2) (AMI) can finish while
+  the card is available. Reason: GPU access, not results; at this time only label files exist (Wikipedia 159 of 200
+  articles) and no drift statistic of the 32B scorer has been computed. Every other rule of D15 is unchanged.
+
+### D15 result (2026-11-10 08:30 KST)
+- Both scopes completed on gp146 (Wikipedia 200 of 200 articles, 2026-11-09 17:55 KST; AMI 16 of 16 meetings x 3
+  versions x 2 columns, 41,890 calls, 2026-11-10 01:58 KST), so both are reported. Model files deleted from gp146
+  afterwards; the university jobs never ran (their node-local staging files are pending deletion by the administrator).
+- Applied rules: the 32B scorer is the seventh row of Table models; the ranges over all scorers now cover seven
+  (chunker |change| 5.5-16.0 and placebo 1.0-6.0 points unchanged; the signed chunker range widens to -4.1..+14.4).
+  Its chunker |change| is 5.7 points, not below the smallest of the six (5.5), so the text says that drift does not
+  shrink at this size.
+- D14 comparison with the reference scorers: on meetings the 32B scorer departs from the reference like the others
+  (every interval above 1 point); on the chunker it does not (excess 0.7 points, interval 0.0-2.3, Spearman 0.75).
+  The abstract, findings and Sec. dir now say this ("on documents all but the largest"); this narrows the earlier
+  claim that every scorer adds a scorer-specific part on documents.
+
+## D16: Editorial corrections after the eighth review (2026-11-10, no new runs)
+Text and generated macros only; no data, cache, or code under the eval lock changed. A fresh independent review of the
+D15 changes found these, each checked against the reports before it was applied:
+- The D14 excess on the chunker change falls monotonically with size in the Qwen family (20.3, 14.2, 11.7, 6.7, 4.0,
+  0.7 points; Phi 15.0); calling 32B "the exception" hid this. The paper now reports the measured sequence (new macros
+  `OrWfourExQwenSeq`, `OrWfourExHalf`, `OrWfourExPhi`), states that the scorer-specific part on documents shrinks with
+  size and is not detectable at 32B, and claims nothing beyond 32B. On meetings it reports that the placebo
+  action-item excess shows no such trend (2.9, 12.2, 7.5, 5.2, 7.6, 9.1) while the question excess does (20.4 to 3.7),
+  and that 32B departs from the reference in every meeting cell. The abstract and the Threats paragraph are updated.
+- "Drift does not shrink at this size" -> "does not shrink further from 7B to 32B" (5.5 vs 5.7 points); the D15 rule
+  is unchanged, the old wording read as "no size effect at all", which the 0.5B-7B values contradict.
+- "On meetings every LLM scorer adds a part" -> "on the main meeting workloads": on W3 the reference explains the
+  0.5B and 1.5B change (`llm_adds` false).
+- The 32B determinism check covered action item, entity count and topic, not question or doc date; the text now says
+  so, and that its host and stop time changed before any drift was computed (D15 amendment).
+- "3B-32B" -> "Qwen 3B-32B" (Phi's W1 change is 2.8 points and its base share 15.8%); `SixDMin` printed with three
+  decimals (0.096, the 32B W4 value, had printed as 0.10); post-hoc round count eight -> nine; "three of the six" ->
+  "seven"; "five model swaps" -> "the five model swaps measured (0.5B-14B, Phi)"; "larger scorers do not remove the
+  effect" scoped to "up to 32B".
+- Merge claim: the k=8 reference and scorer agree in the median (30.4 vs 30.9 points) but differ per meeting by a
+  median 13.2 points (8.2-29.7); the text now says "median" and gives the per-meeting difference (new macros
+  `OrKeightEx*`).
+Build: 13 pages, body ends on page 12, no undefined references.

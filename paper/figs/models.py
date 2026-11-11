@@ -14,6 +14,7 @@ MODELS = [  # label, explore_eval file, model id basename (signed / gold files),
     ("Qwen2.5-3B", "explore_eval_model3.json", "Qwen2.5-3B-Instruct"),
     ("Qwen2.5-7B", "explore_eval_7b.json", "Qwen2.5-7B-Instruct"),
     ("Qwen2.5-14B", "explore_eval_14b.json", "Qwen2.5-14B-Instruct"),
+    ("Qwen2.5-32B (D15)", "explore_eval_32b.json", "Qwen2.5-32B-Instruct"),
     ("Phi-3.5-mini (3.8B)", "explore_eval_phi.json", "Phi-3.5-mini-instruct"),
 ]
 
@@ -23,8 +24,12 @@ def load(name):
     return json.loads(f.read_text()) if f.exists() else None
 
 
-def d(r):
-    return f"{r['median']:.2f}" if r and "median" in r else "--"
+def d(r, minimum=14):
+    """Median D; cells with fewer valid units than the preregistered minimum (14 meetings, 180 articles) carry their count."""
+    if not (r and "median" in r):
+        return "--"
+    n = r.get("valid")
+    return f"{r['median']:.2f}" + (f"$^{{{n}}}$" if n is not None and n < minimum else "")
 
 
 def a(r):
@@ -36,13 +41,13 @@ for label, ev, mid in MODELS:
     e, s, g = load(ev), load(f"explore_signed_{mid}.json"), load(f"explore_gold_{mid}.json")
     if not e:
         continue
-    w1, w2, w4 = e["ami"]["W1"]["Q1"], e["ami"]["W2"]["Q1"], e["wiki"].get("Qd1")
-    sw1 = s["ami"]["W1"]["Q1"] if s else None
-    sw2 = s["ami"]["W2"]["Q1"] if s else None
+    w1, w2, w4 = e["ami"].get("W1", {}).get("Q1"), e["ami"].get("W2", {}).get("Q1"), e["wiki"].get("Qd1")
+    sw1 = s["ami"].get("W1", {}).get("Q1") if s else None  # D15: a workload the 32B run did not complete is "--"
+    sw2 = s["ami"].get("W2", {}).get("Q1") if s else None
     sw4 = s["wiki"].get("Qd1") if s else None
     base = f"{100 * sw1['old_share_median']:.1f}" if sw1 else "--"
     f1 = f"{g['summary']['question']['manual']['f1']:.2f}" if g else "--"
-    rows.append(f"{label} & {base} & {d(w1)} & {a(sw1)} & {d(w2)} & {a(sw2)} & {d(w4)} & {a(sw4)} & {f1} \\\\")
+    rows.append(f"{label} & {base} & {d(w1)} & {a(sw1)} & {d(w2)} & {a(sw2)} & {d(w4, 180)} & {a(sw4)} & {f1} \\\\")
 
 tex = ["\\begin{tabular}{@{}lrrrrrrrr@{}}", "\\toprule",
        "& base & \\multicolumn{2}{c}{W1 diarizer$\\to$manual} & \\multicolumn{2}{c}{W2 placebo} & "

@@ -12,6 +12,7 @@ authors:
     affiliation: "Inha University"
 license: MIT
 type: software
+version: "1.2"
 date-released: "2026-11-11"
 keywords:
   - LLM-derived views

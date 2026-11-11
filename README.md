@@ -34,9 +34,10 @@ original sources; their licenses apply (AMI: see the AMI Meeting Corpus site; Wi
 Tested on Ubuntu 18.04, Python 3.10, NVIDIA TITAN Xp (Pascal, CUDA 11.8 wheels), with torch 2.1.2, transformers
 4.44.2, pyannote.audio 3.1.1, numpy 1.26.4, scipy 1.15.3, pyarrow 17.0.0. `scripts/setup_env.sh` builds the environment
 with `uv`. Models: `Qwen/Qwen2.5-1.5B-Instruct` and `Qwen/Qwen2.5-0.5B-Instruct` at the revisions in
-`configs/frozen_lists.json`; post-hoc scorers `Qwen/Qwen2.5-3B-Instruct`, `Qwen/Qwen2.5-7B-Instruct`, `Qwen/Qwen2.5-14B-Instruct` and
+`configs/frozen_lists.json`; post-hoc scorers `Qwen/Qwen2.5-3B-Instruct`, `Qwen/Qwen2.5-7B-Instruct`, `Qwen/Qwen2.5-14B-Instruct`,
+`Qwen/Qwen2.5-32B-Instruct` (D15; action item, question and dated text only) and
 `microsoft/Phi-3.5-mini-instruct`, all in fp32 (`echobase/post_score.py`; 7B ran on one NVIDIA A100 80GB; 14B on two TITAN Xp
-with CPU offload, `POST_MAX_MEM=7GiB POST_CPU_MEM=75GiB POST_BUDGET=6144`, about 90 GB of RAM); pyannote 3.1 needs a Hugging Face token with its terms accepted.
+with CPU offload, `POST_MAX_MEM=7GiB POST_CPU_MEM=75GiB POST_BUDGET=6144`, about 90 GB of RAM; 32B on one A100 80GB with CPU offload, `POST_MAX_MEM=64GiB POST_CPU_MEM=140GiB POST_BUDGET=6144`, `scripts/d15_gp146.sh`); pyannote 3.1 needs a Hugging Face token with its terms accepted.
 
 ## Level 1: from the caches (CPU)
 
@@ -92,6 +93,9 @@ segments under several batch budgets and reports label mismatches (0 in our runs
 | pooled audit (post-hoc, D7) | `echobase/explore_pooled.py` | `reports/explore_pooled_w{1,3}.json` |
 | chunk window 100/150 (post-hoc, D7) | `echobase/post_score.py wikisize`, `echobase/explore_chunksize.py` | `reports/explore_chunksize.json` |
 | 1.5B at scale (post-hoc, D7) | `echobase/post_score.py --cache-name v2-scale-1.5B`, `echobase/explore_scale.py` | `reports/explore_scale_1.5b.json` |
+| non-LLM reference scorers, series check (Sec. VII, post-hoc, D14, CPU) | `echobase/explore_oracle.py` | `reports/explore_oracle.json` |
+| 32B scorer (post-hoc, D15) | `echobase/post_score.py --cols`, `scripts/d15_gp146.sh`, `echobase/explore_eval.py --partial` | `reports/explore_eval_32b.json`, `reports/explore_{signed,gold}_Qwen2.5-32B-Instruct.json`, `reports/post_determinism_32b_gp146.json`, `reports/d15_env_check.json` |
+| aggregate certification (Sec. IX, post-hoc, D12, CPU) | `echobase/explore_aggcert.py` | `reports/explore_aggcert.json` |
 | replay scalability (`fig:scalability`, post-hoc, D11, CPU) | `echobase/explore_scalability.py`, `paper/figs/scalability.py` | `reports/explore_scalability.json` (wall times depend on the machine; cells, calls and shares are exact) |
 | cost per workload (`tab:cost`, post-hoc, after review 4) | `echobase/explore_cost.py`, `echobase/throughput.py` (run times from the gpulab2 job journals), `paper/figs/cost.py` | `reports/explore_cost.json`, `reports/throughput.json`, `reports/tables/cost.csv` |
 

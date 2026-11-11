@@ -1,0 +1,347 @@
+{
+ "design": "reports/deviations.md D12",
+ "fractions": [
+  0.05,
+  0.1,
+  0.2,
+  0.4
+ ],
+ "resamples": 1000,
+ "min_n": 10,
+ "workloads": {
+  "w1": {
+   "changed_segments": 7277,
+   "unknown_cells": {
+    "action_item": 5397,
+    "question": 5397
+   },
+   "by": {
+    "action_item@0.05": {
+     "calls": 282,
+     "call_share": 0.038752233063075445,
+     "sample": {
+      "median_halfwidth_pts": 23.798681960858964,
+      "p90_halfwidth_pts": 77.6607242238261,
+      "max_meeting_median_halfwidth_pts": 78.50480688823602,
+      "coverage": 0.6345,
+      "min_meeting_coverage": 0.32
+     },
+     "difference": {
+      "median_halfwidth_pts": 14.589964627433886,
+      "p90_halfwidth_pts": 47.79718242929714,
+      "max_meeting_median_halfwidth_pts": 30.570076857791186,
+      "coverage": 0.7005625,
+      "min_meeting_coverage": 0.303
+     }
+    },
+    "action_item@0.1": {
+     "calls": 547,
+     "call_share": 0.07516833860107187,
+     "sample": {
+      "median_halfwidth_pts": 21.970943020087635,
+      "p90_halfwidth_pts": 52.428605093229045,
+      "max_meeting_median_halfwidth_pts": 53.53879804184123,
+      "coverage": 0.743125,
+      "min_meeting_coverage": 0.444
+     },
+     "difference": {
+      "median_halfwidth_pts": 14.644433868380993,
+      "p90_halfwidth_pts": 33.818723976715084,
+      "max_meeting_median_halfwidth_pts": 22.54872477106666,
+      "coverage": 0.78325,
+      "min_meeting_coverage": 0.274
+     }
+    },
+    "action_item@0.2": {
+     "calls": 1084,
+     "call_share": 0.14896248454033256,
+     "sample": {
+      "median_halfwidth_pts": 16.631821285387204,
+      "p90_halfwidth_pts": 33.01026670347647,
+      "max_meeting_median_halfwidth_pts": 37.240653000622196,
+      "coverage": 0.833125,
+      "min_meeting_coverage": 0.518
+     },
+     "difference": {
+      "median_halfwidth_pts": 11.420693520033936,
+      "p90_halfwidth_pts": 21.349852753996363,
+      "max_meeting_median_halfwidth_pts": 15.258465131375381,
+      "coverage": 0.846375,
+      "min_meeting_coverage": 0.367
+     }
+    },
+    "action_item@0.4": {
+     "calls": 2164,
+     "call_share": 0.29737529201594065,
+     "sample": {
+      "median_halfwidth_pts": 10.951438967462533,
+      "p90_halfwidth_pts": 20.303855083834204,
+      "max_meeting_median_halfwidth_pts": 22.87644772995055,
+      "coverage": 0.8944375,
+      "min_meeting_coverage": 0.796
+     },
+     "difference": {
+      "median_halfwidth_pts": 7.913596659199381,
+      "p90_halfwidth_pts": 12.869741042687114,
+      "max_meeting_median_halfwidth_pts": 13.338948587597878,
+      "coverage": 0.89225,
+      "min_meeting_coverage": 0.666
+     }
+    },
+    "question@0.05": {
+     "calls": 282,
+     "call_share": 0.038752233063075445,
+     "sample": {
+      "median_halfwidth_pts": 35.23959698480736,
+      "p90_halfwidth_pts": 88.35977575179723,
+      "max_meeting_median_halfwidth_pts": 77.30000746452278,
+      "coverage": 0.75725,
+      "min_meeting_coverage": 0.591
+     },
+     "difference": {
+      "median_halfwidth_pts": 21.395286495415455,
+      "p90_halfwidth_pts": 58.90733399110901,
+      "max_meeting_median_halfwidth_pts": 34.78488846667382,
+      "coverage": 0.835875,
+      "min_meeting_coverage": 0.456
+     }
+    },
+    "question@0.1": {
+     "calls": 547,
+     "call_share": 0.07516833860107187,
+     "sample": {
+      "median_halfwidth_pts": 28.935063878793564,
+      "p90_halfwidth_pts": 58.090029512221136,
+      "max_meeting_median_halfwidth_pts": 55.213193335835456,
+      "coverage": 0.8360625,
+      "min_meeting_coverage": 0.677
+     },
+     "difference": {
+      "median_halfwidth_pts": 18.048160865786635,
+      "p90_halfwidth_pts": 39.505896633543394,
+      "max_meeting_median_halfwidth_pts": 27.617978874484933,
+      "coverage": 0.87475,
+      "min_meeting_coverage": 0.51
+     }
+    },
+    "question@0.2": {
+     "calls": 1084,
+     "call_share": 0.14896248454033256,
+     "sample": {
+      "median_halfwidth_pts": 21.212828379922648,
+      "p90_halfwidth_pts": 37.04959096439842,
+      "max_meeting_median_halfwidth_pts": 38.585235825847796,
+      "coverage": 0.88675,
+      "min_meeting_coverage": 0.737
+     },
+     "difference": {
+      "median_halfwidth_pts": 13.990673254384578,
+      "p90_halfwidth_pts": 26.315711572099644,
+      "max_meeting_median_halfwidth_pts": 25.008128358514725,
+      "coverage": 0.907875,
+      "min_meeting_coverage": 0.611
+     }
+    },
+    "question@0.4": {
+     "calls": 2164,
+     "call_share": 0.29737529201594065,
+     "sample": {
+      "median_halfwidth_pts": 13.560228122853893,
+      "p90_halfwidth_pts": 22.2839209067594,
+      "max_meeting_median_halfwidth_pts": 23.72525557386813,
+      "coverage": 0.9165625,
+      "min_meeting_coverage": 0.853
+     },
+     "difference": {
+      "median_halfwidth_pts": 9.4038612708496,
+      "p90_halfwidth_pts": 15.306604867467755,
+      "max_meeting_median_halfwidth_pts": 17.15623940506927,
+      "coverage": 0.927375,
+      "min_meeting_coverage": 0.805
+     }
+    }
+   }
+  },
+  "w3": {
+   "changed_segments": 2194,
+   "unknown_cells": {
+    "action_item": 1155,
+    "question": 1155
+   },
+   "by": {
+    "action_item@0.05": {
+     "calls": 156,
+     "call_share": 0.07110300820419325,
+     "sample": {
+      "median_halfwidth_pts": 2.174394230329818,
+      "p90_halfwidth_pts": 22.93036934658941,
+      "max_meeting_median_halfwidth_pts": 13.827657136154851,
+      "coverage": 0.620125,
+      "min_meeting_coverage": 0.315
+     },
+     "difference": {
+      "median_halfwidth_pts": 0.9890836849369096,
+      "p90_halfwidth_pts": 13.382360739474212,
+      "max_meeting_median_halfwidth_pts": 7.773446091173258,
+      "coverage": 0.6904375,
+      "min_meeting_coverage": 0.323
+     }
+    },
+    "action_item@0.1": {
+     "calls": 183,
+     "call_share": 0.08340929808568824,
+     "sample": {
+      "median_halfwidth_pts": 2.174394230329818,
+      "p90_halfwidth_pts": 20.9669548657369,
+      "max_meeting_median_halfwidth_pts": 13.221352902853935,
+      "coverage": 0.64475,
+      "min_meeting_coverage": 0.29
+     },
+     "difference": {
+      "median_halfwidth_pts": 1.0124622112856168,
+      "p90_halfwidth_pts": 13.220329078272014,
+      "max_meeting_median_halfwidth_pts": 7.666774776933323,
+      "coverage": 0.708875,
+      "min_meeting_coverage": 0.327
+     }
+    },
+    "action_item@0.2": {
+     "calls": 274,
+     "call_share": 0.12488605287146765,
+     "sample": {
+      "median_halfwidth_pts": 2.2065832261776395,
+      "p90_halfwidth_pts": 18.079312411171852,
+      "max_meeting_median_halfwidth_pts": 15.728056919607004,
+      "coverage": 0.69825,
+      "min_meeting_coverage": 0.186
+     },
+     "difference": {
+      "median_halfwidth_pts": 1.7098481028544135,
+      "p90_halfwidth_pts": 10.172257921199742,
+      "max_meeting_median_halfwidth_pts": 9.534582676465355,
+      "coverage": 0.7506875,
+      "min_meeting_coverage": 0.305
+     }
+    },
+    "action_item@0.4": {
+     "calls": 485,
+     "call_share": 0.2210574293527803,
+     "sample": {
+      "median_halfwidth_pts": 2.38751929248461,
+      "p90_halfwidth_pts": 13.366684008216058,
+      "max_meeting_median_halfwidth_pts": 18.80160452380549,
+      "coverage": 0.7761875,
+      "min_meeting_coverage": 0.403
+     },
+     "difference": {
+      "median_halfwidth_pts": 1.84155849055059,
+      "p90_halfwidth_pts": 6.809648855949769,
+      "max_meeting_median_halfwidth_pts": 7.440777343282103,
+      "coverage": 0.7905,
+      "min_meeting_coverage": 0.403
+     }
+    },
+    "question@0.05": {
+     "calls": 156,
+     "call_share": 0.07110300820419325,
+     "sample": {
+      "median_halfwidth_pts": 4.644935661808064,
+      "p90_halfwidth_pts": 31.682128357238977,
+      "max_meeting_median_halfwidth_pts": 26.75940827653299,
+      "coverage": 0.768625,
+      "min_meeting_coverage": 0.568
+     },
+     "difference": {
+      "median_halfwidth_pts": 2.143954010171164,
+      "p90_halfwidth_pts": 15.36500373956001,
+      "max_meeting_median_halfwidth_pts": 9.729619580254587,
+      "coverage": 0.794875,
+      "min_meeting_coverage": 0.228
+     }
+    },
+    "question@0.1": {
+     "calls": 183,
+     "call_share": 0.08340929808568824,
+     "sample": {
+      "median_halfwidth_pts": 5.020085911197664,
+      "p90_halfwidth_pts": 27.499859412551388,
+      "max_meeting_median_halfwidth_pts": 27.19806980465149,
+      "coverage": 0.779125,
+      "min_meeting_coverage": 0.536
+     },
+     "difference": {
+      "median_halfwidth_pts": 2.345692851321082,
+      "p90_halfwidth_pts": 13.603525644508515,
+      "max_meeting_median_halfwidth_pts": 11.006903681727927,
+      "coverage": 0.8154375,
+      "min_meeting_coverage": 0.254
+     }
+    },
+    "question@0.2": {
+     "calls": 274,
+     "call_share": 0.12488605287146765,
+     "sample": {
+      "median_halfwidth_pts": 5.27913499956936,
+      "p90_halfwidth_pts": 20.824887749977695,
+      "max_meeting_median_halfwidth_pts": 18.9741372314194,
+      "coverage": 0.814,
+      "min_meeting_coverage": 0.568
+     },
+     "difference": {
+      "median_halfwidth_pts": 2.614799190126776,
+      "p90_halfwidth_pts": 10.140003005081427,
+      "max_meeting_median_halfwidth_pts": 13.428150755673403,
+      "coverage": 0.8336875,
+      "min_meeting_coverage": 0.354
+     }
+    },
+    "question@0.4": {
+     "calls": 485,
+     "call_share": 0.2210574293527803,
+     "sample": {
+      "median_halfwidth_pts": 4.4017009468954456,
+      "p90_halfwidth_pts": 18.272799280517518,
+      "max_meeting_median_halfwidth_pts": 19.85739525173501,
+      "coverage": 0.8395,
+      "min_meeting_coverage": 0.541
+     },
+     "difference": {
+      "median_halfwidth_pts": 2.5603702158399293,
+      "p90_halfwidth_pts": 6.535782855033206,
+      "max_meeting_median_halfwidth_pts": 8.835881936398025,
+      "coverage": 0.8576875,
+      "min_meeting_coverage": 0.641
+     }
+    }
+   }
+  }
+ },
+ "decision": {
+  "certifies_95": {
+   "sample@0.05": false,
+   "sample@0.1": false,
+   "sample@0.2": false,
+   "sample@0.4": false,
+   "difference@0.05": false,
+   "difference@0.1": false,
+   "difference@0.2": false,
+   "difference@0.4": false
+  },
+  "proxy_helps": {
+   "0.05": true,
+   "0.1": true,
+   "0.2": true,
+   "0.4": true
+  },
+  "smallest_fraction_2pts": {
+   "w1/action_item/difference": null,
+   "w1/action_item/sample": null,
+   "w1/question/difference": null,
+   "w1/question/sample": null,
+   "w3/action_item/difference": null,
+   "w3/action_item/sample": null,
+   "w3/question/difference": null,
+   "w3/question/sample": null
+  }
+ }
+}

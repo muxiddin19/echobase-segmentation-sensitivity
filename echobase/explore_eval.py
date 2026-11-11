@@ -35,8 +35,30 @@ def stat(d):
     return dict(rec, median=float(np.median(x)), ci=[float(lo), float(hi)], ci_method=how)
 
 
-def complete(old, new):
-    return all((drift.V2 / v / c / f"{m}.json").exists() for v in (old, new) for c in COLS for m in meetings("eval"))
+def complete(old, new, cols=COLS):
+    return all((drift.V2 / v / c / f"{m}.json").exists() for v in (old, new) for c in cols for m in meetings("eval"))
+
+
+def partial_drift(old, new):
+    """D15: a scorer with only the action-item and question columns (the 32B run): Q1 and Q2 only, as in drift.ami_drift."""
+    out = {}
+    for q in ("Q1", "Q2"):
+        col, target = drift.AMI_QUERIES[q]
+        out[q] = {m: drift.rel(drift.share(*drift.ami_load(old, col, m), target), drift.share(*drift.ami_load(new, col, m), target))
+                  for m in meetings("eval")}
+    return out
+
+
+def wiki_qd1(split):
+    """D15: Qd1 only (doc_date), as in drift.wiki_drift."""
+    from .wiki import articles
+    out = {}
+    for art in articles(split):
+        def load(ch):
+            d = json.loads((drift.V2 / "wiki" / ch / "doc_date" / f"{art['id']}.json").read_text())
+            return d["values"], [e - s for s, e in d["spans"]]
+        out[art["id"]] = drift.rel(drift.share(*load("fixed"), "yes"), drift.share(*load("para"), "yes"))
+    return {"Qd1": out}
 
 
 if __name__ == "__main__":
@@ -44,16 +66,20 @@ if __name__ == "__main__":
     ap.add_argument("--model", default=PRIMARY)
     ap.add_argument("--cache", help="cache dir under outputs/echobase (D6 prompt variants), overrides --model's")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--partial", action="store_true", help="D15: score Q1, Q2 and Qd1 when only those columns exist")
     a = ap.parse_args()
     require_g1("exploratory eval analysis")
     drift.V2 = ROOT / "outputs" / "echobase" / a.cache if a.cache else cache_root(ROOT, a.model)  # ami_load / wiki_drift read this module global at call time
     res = {"model": a.model, "ami": {}, "skipped": [], "wiki": {}}
     per_q1 = {}
     for name, (old, new) in PAIRS.items():
-        if not complete(old, new):
+        if complete(old, new):
+            dr = drift.ami_drift(old, new, "eval")
+        elif a.partial and complete(old, new, ("action_item", "question")):
+            dr = partial_drift(old, new)
+        else:
             res["skipped"].append(name)
             continue
-        dr = drift.ami_drift(old, new, "eval")
         res["ami"][name] = {q: dict(stat(d), per_unit=d) for q, d in dr.items()}
         per_q1[name] = dr["Q1"]
     if "W1" in per_q1 and "W2" in per_q1:
@@ -66,6 +92,8 @@ if __name__ == "__main__":
     if (drift.V2 / "wiki" / "para" / "doc_topic").exists():
         wd = drift.wiki_drift("test")
         res["wiki"] = {q: dict(stat(d), per_unit=d) for q, d in wd.items()}
+    elif a.partial and (drift.V2 / "wiki" / "para" / "doc_date").exists():
+        res["wiki"] = {q: dict(stat(d), per_unit=d) for q, d in wiki_qd1("test").items()}
     Path(a.out).write_text(json.dumps(res, indent=1))
     for name, qs in res["ami"].items():
         print(name, "  ".join(f"{q}={r.get('median', float('nan')):.3f}[{r.get('ci', [np.nan, np.nan])[0]:.3f},"
