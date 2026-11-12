@@ -509,3 +509,133 @@ D15 changes found these, each checked against the reports before it was applied:
   median 13.2 points (8.2-29.7); the text now says "median" and gives the per-meeting difference (new macros
   `OrKeightEx*`).
 Build: 13 pages, body ends on page 12, no undefined references.
+
+## D17: Addressing the stated limitations after submission (2026-11-11 07:00 KST, before any code or result)
+Post-hoc and exploratory; for the rebuttal (Jan 8-15) and any later version. The submitted paper (55a2671) is frozen.
+No locked file changes; the confirmatory analysis is not rerun. Three parts, each with rules fixed here.
+
+**D17-A: a high-validity, non-LLM learned scorer (limitation: weak labels; CPU only).**
+- Training data: AMI meetings with dialogue-act annotation, excluding the 18 dev and 16 eval meetings and every
+  meeting of their series (ES2011, IB4*, IS1008, TS3004, EN2002, ES2004, IS1009, TS3003). Units: AMI manual segments
+  over reference words. Label: a segment is "yes" if any of its words lies in a dialogue act of the column's types
+  (D14 reference definition: question <- el.inf, el.ass; action item <- sug).
+- Model: TF-IDF of word 1-2 grams (lowercase, min_df 2, sublinear tf) + logistic regression (liblinear, balanced
+  class weights). C in {0.1, 1, 10} and the probability threshold in {0.10, 0.15, ..., 0.90} are chosen on the 18 AMI
+  dev meetings (manual segments) by word-level F1; then applied once to the 16 eval meetings.
+- Validity: word-level F1 against the dialogue acts on eval manual segments (explore_gold metric). It counts as
+  "valid" for a column if F1 >= 0.50 (best LLM question F1: 0.30). Reported either way.
+- Drift: on the 16 eval meetings, the same statistics as Table models and D14 (relative D, |change|, signed change,
+  excess over the D14 reference) for W1, W2, W3 and merges k = 2, 4, 8, both columns.
+- Rules: (i) "a valid scorer still drifts" if, for a valid column, the W2 |change| interval lies above 1 point;
+  (ii) "it adds a scorer-specific part" by the D14 rule (excess interval above 1 point). Since it is trained toward
+  the reference definition, a small excess is expected and will be stated as such.
+
+**D17-B: rerun noise under reduced-precision, batch-varying inference (limitation: determinism needs fp32).**
+- Primary scorer (1.5B) in bf16 on a TITAN Xp of gpulab2 (the only idle cards; Pascal runs bf16 through emulated
+  kernels, stated as a caveat), two batch budgets (3072 and 1024 tokens: different batch composition and padding).
+  AMI eval: manual, placebo, w1old x action item, question; Wikipedia test: fixed, para x doc date.
+- Per unit: rerun change = |s(manual or fixed, 3072) - s(same, 1024)|; segmentation change = |s(placebo or w1old or
+  para, 3072) - s(manual or fixed, 3072)|; plus the label flip rate between budgets.
+- Rule: segmentation drift exceeds rerun noise if the per-unit paired difference (segmentation change - rerun
+  change) has a median interval (same BCa routine) above 0. Otherwise the text will say that, at bf16, this
+  workload's drift is not separable from rerun noise. bf16 vs fp32 segmentation drift is reported descriptively.
+
+**D17-C: a second corpus per domain (limitation: one corpus per domain).**
+- Meetings: ICSI Meeting Corpus core NXT annotations (CC BY 4.0). 20 of the 75 meetings, drawn with Python
+  random.Random(crc32("icsi:d17")).sample(sorted(meetings), 20). Manual segments = ICSI transcription segments;
+  words with times only (no punctuation tokens). Workloads: W2 placebo (same algorithm, seed crc32("placebo:<m>"))
+  and merges k = 2, 4, 8. No W1 (no diarization of ICSI audio). Reference (D14 style): question <- MRDA tags qy, qw,
+  qr, qrr, qo, qh (any component of the label); action item <- cs.
+- Documents: GovReport CRS test split (US government works, public domain; launch/gov_report, 362 reports): 200
+  drawn with random.Random(crc32("crs:d17")).sample(sorted(ids), 200); text = paragraphs in order (section titles
+  dropped). W4 as for Wikipedia (fixed 120-word windows vs paragraphs merged forward to >= 40 words), doc date column,
+  rule-based date reference.
+- Scorer: the primary 1.5B in fp32 (frozen prompts, unchanged), determinism spot check 0 mismatches between two batch
+  budgets on 200 segments before use.
+- Rules: the H2 and H4 decision rules (median D >= 0.05 with CI lower >= 0.02; median D >= 0.10 with CI lower
+  >= 0.05), applied as a post-hoc replication, with unit minima of 18 of 20 meetings and 180 of 200 reports passing
+  the 0.02 guard; plus |change|, signed change and the D14 excess. A failed rule is reported as a failed replication.
+- D17-B amendment (2026-11-11 07:40 KST, before any label): bf16 attention failed to launch on Pascal ("cutlassF: no
+  kernel found"); the run uses PyTorch's math attention backend (memory-efficient and flash attention disabled via
+  torch.backends), unchanged code otherwise. No label had been written.
+- D17-A addendum (2026-11-11 08:30 KST, after the dev F1 of 0.33 and the eval F1 of 0.35 were seen; no rule changed):
+  word-level F1 credits a "yes" segment with all its words, while the dialogue act covers only some, so even a labeler
+  that is exactly right about every segment cannot reach F1 = 1. We therefore also compute, on the eval meetings and
+  per version, (a) the word-level F1 of the reference labeling itself (a segment is "yes" iff any of its words is in
+  an act of the column's type), the ceiling for any segment-level scorer, and (b) segment-level precision, recall and
+  F1 of every scorer against that reference labeling. Descriptive only; the >= 0.50 validity rule of D17-A is
+  reported as written.
+
+## D18: Segmentation-invariant scoring by canonical units (2026-11-11 09:10 KST, before any code or label)
+Post-hoc, exploratory; addresses the limitation that the paper offers no constructive data-engineering remedy (its
+conclusion names "scoring operators whose answers are stable under re-segmentation by construction" as future work).
+- Operator: score fixed canonical units derived from the words alone, never from the segmenter: per speaker, the
+  reference words in time order, cut wherever the gap to the speaker's previous word is >= 0.5 s. (Dev only, no
+  labels: 91% of gaps are 0 and ~9% exceed 0.3 s, with nearly the same split at 0.3, 0.5 or 1.0 s, so 0.5 s is fixed
+  here and not tuned.) A segmentation version's view is the word-weighted share over canonical units. Because the
+  units do not depend on segment boundaries, W1 (on reference words), W2 and the merges give identical answers by
+  construction, and one scoring pass serves every version (all labels reusable by content hash). Caveat stated in the
+  text: invariance covers boundary moves, not speaker-attribution errors of a real diarizer.
+- Run: primary scorer (1.5B, fp32, frozen prompts), action item and question, 16 eval meetings, gpulab2.
+- Measured: (a) drift across versions (zero by construction; verified by computation); (b) validity: word-level F1
+  against the dialogue acts (explore_gold metric), compared with the same scorer on manual segments and with the
+  word-F1 ceiling of the canonical units (D17-A addendum method); (c) cost: calls and prompt tokens of one canonical
+  pass against scoring each version separately.
+- Rules: the operator "keeps validity" for a column if its word-level F1 is at least 0.9 x the manual-segment F1 of
+  the same scorer (pooled over the 16 meetings); otherwise the text reports the validity cost of invariance. No
+  threshold is tuned on eval.
+
+## Availability paragraph (2026-11-11 15:00 KST, text only, before the submission deadline)
+At the user's request the paper names its artifacts explicitly: the abstract ends with the repository URL, and a new
+"Availability" paragraph after the contributions gives the code (MIT), the Zenodo concept DOI, the AMI and Wikipedia
+sources with licenses and URLs, and the model sources. No number, analysis or claim changed; 13 pages, body ends on
+page 12. For re-upload in place of the 55a2671 PDF before the deadline.
+
+## D19: A second scorer for D17-C and D18 (2026-11-11 18:05 KST, before any code change or label)
+Post-hoc, exploratory; for a possible revised upload before the deadline (Nov 12 10:00 KST), the rebuttal or a later
+version. Limitation addressed: the D17-C replications and the D18 operator rest on one scorer (the 1.5B).
+- Scorer: Qwen2.5-3B-Instruct, fp32, frozen prompts, split over both TITAN Xp cards of gpulab2 (as in D5). Before
+  use, the D17-C determinism spot check (two batch budgets, 600 labels) must show 0 mismatches; otherwise no label is
+  used and the text says so.
+- Scope, in this order: D17-C ICSI (20 meetings; manual, placebo, merges 2/4/8; action item, question), D17-C CRS
+  (200 reports; fixed, para; doc date), D18 canonical units (16 AMI eval meetings; action item, question). Same
+  meeting and report samples, same code paths; only the model id and the cache directory change (suffix "-3b").
+- Rules: exactly those of D17-C (H2 rule on ICSI with >= 18/20 meetings valid, H4 rule on CRS with >= 180/200
+  reports valid; |change|, signed change, D14 excess) and of D18 (canonical F1 >= 0.9 x the same scorer's
+  manual-segment F1; the manual-segment labels are the 3B's D5 cache v2-Qwen2.5-3B-Instruct). A failed rule is
+  reported as a failed replication. If the 3B runs end before 01:00 KST, the same scope runs with Qwen2.5-0.5B
+  (one card each for ICSI and CRS); otherwise not.
+
+## Correction: words outside diarizer turns (2026-11-11 19:00 KST, found while writing up D18)
+The submitted text (55a2671, c638790) says that both versions of a meeting "contain exactly the same words in the same
+order". That holds for the placebo, the merges and the chunkers, but not for the diarizer versions: pilots/lineage.py
+`_assign` puts a reference word into the turn that contains its midpoint, and a word whose midpoint lies in no turn is
+left out. On the 16 held-out meetings, W1's diarizer version lacks 876 of 88,826 manual-version words (1.0%), W3's
+880 (reports/d18_wordsets.json, echobase/d18_wordsets.py). No code or number changes; the revised text states this.
+The main conclusions are unaffected: the placebo, which keeps every word, drifts more than W1 for all seven scorers.
+It also explains why canonical units (D18) leave a small residual drift under W1 and W3 but none under boundary-only
+changes.
+- D19 result, ICSI and CRS (2026-11-11 20:45 KST): Qwen2.5-3B determinism 0/600. CRS chunker D 0.232 [0.199, 0.262],
+  192/200 valid: H4 rule met. ICSI placebo, action items: only 3 of 20 meetings pass the 0.02 guard (the 3B labels
+  almost no ICSI speech as action items), below the minimum of 18, so the H2 rule is not met; reported in the text as
+  a failed replication for lack of measurable units. ICSI placebo, questions (descriptive): D 0.285 [0.203, 0.395],
+  20/20 valid. Report: reports/d19_corpora_3b.json (analysis run on the PC from the copied caches; sha256 of the
+  archive checked).
+- D19 result, canonical units (2026-11-11 20:55 KST): Qwen2.5-3B, 16 eval meetings. D18 rule met for both columns
+  (word F1 0.114 vs 0.109 on manual segments for action items; 0.203 vs 0.198 for questions). Placebo and merges:
+  D exactly 0 (max 0). W1 residue: action items D 0.010 (12 meetings pass the guard), questions D 0.112 (16).
+  Analysis run on gpulab2 (reports/d19_canonical_3b.json); caches copied with sha256 check. The 3B runs ended at
+  20:55 KST, before the 01:00 cutoff, so the logged 0.5B extension (same scope; ICSI and CRS on one card each, then
+  canonical units) runs next.
+
+### D19 result: Qwen2.5-0.5B extension (logged 2026-11-12 06:45 KST)
+
+Run per the D19 rule (3B runs ended 20:55, before 01:00): unit d19h on gpulab2, 20:49-21:07 KST, all parts EXIT 0.
+Determinism 0/600 (`reports/d19_half_determinism.json`).
+- D17-C (`reports/d19_corpora_half.json`): ICSI placebo action items D 0.197 [0.132, 0.224], 20/20 valid: H2 rule met.
+  ICSI placebo questions D 0.405. CRS chunker D 0.274 [0.233, 0.304], 200/200 valid: H4 rule met.
+  Across the three scorers: primary (1.5B) both met; 3B chunker met, placebo not met (3/20 measurable); 0.5B both met.
+- D18 canonical (`reports/d19_canonical_half.json`): F1 0.169 vs 0.170 (action items), 0.059 vs 0.060 (questions):
+  rule met for both columns. Placebo and merges k=2,4,8: D exactly 0. W1 residue 0.031 (action items), 0.039 (questions).
+Paper: one clause in the findings, one sentence in "Second corpora", one clause in Sec. canon results; conclusion's
+limitations sentence shortened to keep the body within 12 pages.

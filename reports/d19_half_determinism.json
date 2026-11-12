@@ -1,0 +1,17 @@
+{
+ "model": "Qwen/Qwen2.5-0.5B-Instruct/float32",
+ "columns": {
+  "question": {
+   "n": 200,
+   "mismatch_budgets": 0
+  },
+  "action_item": {
+   "n": 200,
+   "mismatch_budgets": 0
+  },
+  "doc_date": {
+   "n": 200,
+   "mismatch_budgets": 0
+  }
+ }
+}

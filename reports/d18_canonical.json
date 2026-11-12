@@ -1,0 +1,212 @@
+{
+ "design": "reports/deviations.md D18/D19",
+ "model": "Qwen/Qwen2.5-1.5B-Instruct",
+ "gap_s": 0.5,
+ "drift": {
+  "action_item": {
+   "W1": {
+    "valid": 16,
+    "median_D": 0.0730523407556684,
+    "ci": [
+     0.03310526005760315,
+     0.0991242921709037
+    ],
+    "max_D": 0.19423859809796118,
+    "median_abs_pts": 1.7389964236028872
+   },
+   "W2": {
+    "valid": 16,
+    "median_D": 0.0,
+    "ci": [
+     0.0,
+     0.0
+    ],
+    "max_D": 0.0,
+    "median_abs_pts": 0.0
+   },
+   "W3": {
+    "valid": 16,
+    "median_D": 0.0001991589325492755,
+    "ci": [
+     0.00012768998191746135,
+     0.00046697468093099745
+    ],
+    "max_D": 0.04186034689901454,
+    "median_abs_pts": 0.005324917457379119
+   },
+   "E6_k2": {
+    "valid": 16,
+    "median_D": 0.0,
+    "ci": [
+     0.0,
+     0.0
+    ],
+    "max_D": 0.0,
+    "median_abs_pts": 0.0
+   },
+   "E6_k4": {
+    "valid": 16,
+    "median_D": 0.0,
+    "ci": [
+     0.0,
+     0.0
+    ],
+    "max_D": 0.0,
+    "median_abs_pts": 0.0
+   },
+   "E6_k8": {
+    "valid": 16,
+    "median_D": 0.0,
+    "ci": [
+     0.0,
+     0.0
+    ],
+    "max_D": 0.0,
+    "median_abs_pts": 0.0
+   }
+  },
+  "question": {
+   "W1": {
+    "valid": 16,
+    "median_D": 0.030771505020337604,
+    "ci": [
+     0.01564206813131778,
+     0.07490150542812372
+    ],
+    "max_D": 0.20947352015031573,
+    "median_abs_pts": 1.2370100089189817
+   },
+   "W2": {
+    "valid": 16,
+    "median_D": 0.0,
+    "ci": [
+     0.0,
+     0.0
+    ],
+    "max_D": 0.0,
+    "median_abs_pts": 0.0
+   },
+   "W3": {
+    "valid": 16,
+    "median_D": 0.0003016743615247438,
+    "ci": [
+     0.00010884765399228265,
+     0.0019017065958770421
+    ],
+    "max_D": 0.025747884776610882,
+    "median_abs_pts": 0.012229900600771448
+   },
+   "E6_k2": {
+    "valid": 16,
+    "median_D": 0.0,
+    "ci": [
+     0.0,
+     0.0
+    ],
+    "max_D": 0.0,
+    "median_abs_pts": 0.0
+   },
+   "E6_k4": {
+    "valid": 16,
+    "median_D": 0.0,
+    "ci": [
+     0.0,
+     0.0
+    ],
+    "max_D": 0.0,
+    "median_abs_pts": 0.0
+   },
+   "E6_k8": {
+    "valid": 16,
+    "median_D": 0.0,
+    "ci": [
+     0.0,
+     0.0
+    ],
+    "max_D": 0.0,
+    "median_abs_pts": 0.0
+   }
+  }
+ },
+ "validity": {
+  "action_item": {
+   "canonical": {
+    "precision": 0.13521453420950907,
+    "recall": 0.4300467174821736,
+    "f1": 0.2057405011175156
+   },
+   "ceiling_canonical": {
+    "precision": 0.44027063599458727,
+    "recall": 1.0,
+    "f1": 0.6113720921492728
+   },
+   "segments_manual": {
+    "precision": 0.13305491588930954,
+    "recall": 0.41910499139414803,
+    "f1": 0.2019848911272404
+   },
+   "keeps_validity": true
+  },
+  "question": {
+   "canonical": {
+    "precision": 0.05768113350914048,
+    "recall": 0.7057697566311184,
+    "f1": 0.10664628225523211
+   },
+   "ceiling_canonical": {
+    "precision": 0.4962681503596146,
+    "recall": 1.0,
+    "f1": 0.6633411935425357
+   },
+   "segments_manual": {
+    "precision": 0.05799218082955107,
+    "recall": 0.7057697566311184,
+    "f1": 0.10717770902975313
+   },
+   "keeps_validity": true
+  }
+ },
+ "cost": {
+  "canonical_distinct_units": 6053,
+  "per_version_segments": 33756,
+  "canonical_tokens": 758821,
+  "per_version_tokens": 4340378
+ },
+ "reuse": {
+  "manual": {
+   "units": 7465,
+   "reused_from_manual": 7465,
+   "share": 1.0
+  },
+  "w1old": {
+   "units": 7655,
+   "reused_from_manual": 6853,
+   "share": 0.8952318745917701
+  },
+  "placebo": {
+   "units": 7465,
+   "reused_from_manual": 7465,
+   "share": 1.0
+  },
+  "w3old": {
+   "units": 7659,
+   "reused_from_manual": 6848,
+   "share": 0.894111502807155
+  },
+  "merge2": {
+   "units": 7465,
+   "reused_from_manual": 7465,
+   "share": 1.0
+  },
+  "merge4": {
+   "units": 7465,
+   "reused_from_manual": 7465,
+   "share": 1.0
+  },
+  "merge8": {
+   "units": 7465,
+   "reused_from_manual": 7465,
+   "share": 1.0
+  }
+ }
+}

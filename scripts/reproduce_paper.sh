@@ -61,6 +61,37 @@ OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 $PY -m echobase.explore_scalability --out "$
 $PY -m echobase.explore_aggcert --out "$OUT/explore_aggcert.json"  # D12
 $PY -m echobase.explore_oracle --out "$OUT/explore_oracle.json"  # D14
 
+# post-hoc analyses after submission (D17-D19 in reports/deviations.md; in the uploaded paper, not the first submission)
+# D17-A: learned non-LLM scorer (refits on AMI train and rewrites its own cache v2-learned), F1 ceiling
+$PY -m echobase.d17_learned --out "$OUT/d17_learned_fit.json"
+$PY -m echobase.explore_eval --partial --cache v2-learned --out "$OUT/d17_learned_eval.json"
+$PY -m echobase.explore_signed --cache v2-learned --out "$OUT/d17_learned_signed.json"
+$PY -m echobase.explore_gold --cache v2-learned --out "$OUT/d17_learned_gold.json"
+$PY - "$OUT" <<'EOF'
+import json, sys
+from pathlib import Path
+import echobase.explore_oracle as o
+o.MODELS = ("local/learned",)              # the D14 reference comparison, applied to the learned scorer
+r = o.ami_part()
+Path(sys.argv[1], "d17_learned_oracle.json").write_text(json.dumps({"design": "reports/deviations.md D17-A (D14 code, learned cache)", "ami": r}, indent=1))
+EOF
+$PY -m echobase.d17_ceiling --out "$OUT/d17_ceiling.json"
+# D17-B: bf16 rerun noise
+$PY -m echobase.d17_bf16 --out "$OUT/d17_bf16.json"
+# D17-C and D19: second corpora (needs data/icsi and data/govreport: bash scripts/fetch_d17.sh), three scorers
+if [ -f data/icsi/ICSI_core_NXT.zip ] && [ -f data/govreport/data/crs_test.jsonl ]; then
+  $PY -m echobase.d17_corpora analyze --out "$OUT/d17_corpora.json"
+  EB_MODEL=Qwen/Qwen2.5-3B-Instruct $PY -m echobase.d17_corpora analyze --out "$OUT/d19_corpora_3b.json"
+  EB_MODEL=Qwen/Qwen2.5-0.5B-Instruct $PY -m echobase.d17_corpora analyze --out "$OUT/d19_corpora_half.json"
+else
+  echo "data/icsi or data/govreport missing: skipped D17-C/D19 corpora (run scripts/fetch_d17.sh)"
+fi
+# D18 and D19: canonical units (memory-heavy: several GB of RAM per run)
+$PY -m echobase.d18_wordsets --out "$OUT/d18_wordsets.json"
+$PY -m echobase.d18_canonical analyze --out "$OUT/d18_canonical.json"
+EB_MODEL=Qwen/Qwen2.5-3B-Instruct $PY -m echobase.d18_canonical analyze --out "$OUT/d19_canonical_3b.json"
+EB_MODEL=Qwen/Qwen2.5-0.5B-Instruct $PY -m echobase.d18_canonical analyze --out "$OUT/d19_canonical_half.json"
+
 # Compare with the released reports. Floats are compared to a relative 1e-9: the topic-distance queries sum over a
 # Python set, whose order (string hashing) varies between runs, so their last digit can differ. NaN equals NaN.
 $PY - "$OUT" <<'EOF'

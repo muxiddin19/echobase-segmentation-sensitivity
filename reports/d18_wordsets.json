@@ -1,0 +1,40 @@
+{
+ "design": "reports/deviations.md D18",
+ "versions": {
+  "manual": {
+   "manual_words": 88826,
+   "only_manual": 0,
+   "only_version": 0
+  },
+  "w1old": {
+   "manual_words": 88826,
+   "only_manual": 876,
+   "only_version": 0
+  },
+  "placebo": {
+   "manual_words": 88826,
+   "only_manual": 0,
+   "only_version": 0
+  },
+  "w3old": {
+   "manual_words": 88826,
+   "only_manual": 880,
+   "only_version": 0
+  },
+  "merge2": {
+   "manual_words": 88826,
+   "only_manual": 0,
+   "only_version": 0
+  },
+  "merge4": {
+   "manual_words": 88826,
+   "only_manual": 0,
+   "only_version": 0
+  },
+  "merge8": {
+   "manual_words": 88826,
+   "only_manual": 0,
+   "only_version": 0
+  }
+ }
+}

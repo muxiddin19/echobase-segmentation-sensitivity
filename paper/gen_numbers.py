@@ -413,6 +413,127 @@ r = rng("SgWoneQone{}old")
 if r:
     put("SixBaseMin", r[0]); put("SixBaseMax", r[1])
 
+# ---------------------------------------------------------------- D17-D19 (post-hoc, after the first upload)
+lg, le, lo = load("d17_learned_gold.json"), load("d17_learned_eval.json"), load("d17_learned_oracle.json")
+lf = load("d17_learned_fit.json")
+if lg and le and lo and lf:  # D17-A: learned non-LLM scorer
+    put("LrnTrainN", len(lf["train_meetings"]), "{}")
+    for col, tag in (("question", "Qu"), ("action_item", "Ac")):
+        s = lg["summary"][col]
+        put(f"LrnFone{tag}", s["manual"]["f1"], "{:.2f}"); put(f"LrnFonePl{tag}", s["placebo"]["f1"], "{:.2f}")
+    for w in ("W1", "W2"):
+        for q, tag in (("Q1", "Ac"), ("Q2", "Qu")):
+            r = le["ami"][w][q]
+            put(f"Lrn{w}{tag}D", r["median"], "{:.2f}"); put(f"Lrn{w}{tag}Dlo", r["ci"][0], "{:.2f}")
+            put(f"Lrn{w}{tag}Dhi", r["ci"][1], "{:.2f}")
+    for w in ("W2", "E6_k8"):
+        for col, tag in (("question", "Qu"), ("action_item", "Ac")):
+            r = lo["ami"][w][col]["learned"]
+            put(f"Lrn{w}{tag}Ex", r["abs_excess"]["median"], "{:.1f}"); put(f"Lrn{w}{tag}ExLo", r["abs_excess"]["ci"][0], "{:.1f}")
+            put(f"Lrn{w}{tag}Abs", r["abs_llm"]["median"], "{:.1f}"); put(f"Lrn{w}{tag}Ref", r["abs_ref"]["median"], "{:.1f}")
+ce = load("d17_ceiling.json")
+if ce:  # D17-A addendum: ceiling of segment labels; segment-level agreement
+    for col, tag in (("question", "Qu"), ("action_item", "Ac")):
+        for v, vt in (("manual", ""), ("placebo", "Pl"), ("w1old", "Wone")):
+            put(f"Ceil{tag}{vt}", ce["ceiling_word_f1"][col][v]["f1"], "{:.2f}")
+        sl = ce["segment_level"][col]
+        put(f"SegFall{tag}", sum(v["placebo"]["f1"] < v["manual"]["f1"] for v in sl.values()), "{}")
+        put(f"SegN{tag}", len(sl), "{}")
+        llm = {m: v for m, v in sl.items() if not m.startswith("learned")}
+        put(f"SegLlmMax{tag}", max(v["manual"]["f1"] for v in llm.values()), "{:.2f}")
+        put(f"SegLrn{tag}", sl["learned (D17-A)"]["manual"]["f1"], "{:.2f}")
+        put(f"SegLrnPl{tag}", sl["learned (D17-A)"]["placebo"]["f1"], "{:.2f}")
+        t = sl["Qwen2.5-32B-Instruct"]
+        put(f"SegThirtytwo{tag}", t["manual"]["f1"], "{:.2f}"); put(f"SegThirtytwoPl{tag}", t["placebo"]["f1"], "{:.2f}")
+bf = load("d17_bf16.json")
+if bf:  # D17-B: bf16 rerun noise vs segmentation drift
+    W = bf["workloads"]
+    for key, tag in (("W2/action_item", "WtwoAc"), ("W2/question", "WtwoQu"), ("W1/action_item", "WoneAc"),
+                     ("W1/question", "WoneQu"), ("W4/doc_date", "Wfour")):
+        r = W[key]
+        put(f"Bf{tag}Rerun", r["rerun"]["median"], "{:.1f}"); put(f"Bf{tag}Seg", r["seg_bf16"]["median"], "{:.1f}")
+        put(f"Bf{tag}Diff", r["seg_minus_rerun"]["median"], "{:.1f}"); put(f"Bf{tag}DiffLo", r["seg_minus_rerun"]["ci"][0], "{:.1f}")
+    put("BfAll", "all five" if all(r["seg_exceeds_rerun"] for r in W.values()) and len(W) == 5 else "\\missing{BfAll}", "{}")
+    fr = bf["flip_rate"]
+    rates = [r["rate"] for r in fr.values() if isinstance(r, dict) and "rate" in r]
+    rates += [r["rate"] for k, r in fr.items() if k == "wiki" for r in r.values()]
+    rates += [r["rate"] for k, r in fr.items() if k.startswith("wiki/")]
+    put("BfFlipMin", 100 * min(rates), "{:.1f}"); put("BfFlipMax", 100 * max(rates), "{:.1f}")
+    put("BfRerunMax", max(r["rerun"]["median"] for r in W.values()), "{:.1f}")
+    put("BfSegMin", min(r["seg_bf16"]["median"] for r in W.values()), "{:.1f}")
+
+
+def corpora(d, tag):  # D17-C (1.5B) and D19 (3B): ICSI and CRS
+    for col, ct in (("action_item", "Ac"), ("question", "Qu")):
+        for w in ("W2", "E6_k8"):
+            r = d["icsi"][w][col]
+            put(f"Ic{tag}{w}{ct}D", r["median"], "{:.2f}"); put(f"Ic{tag}{w}{ct}Dlo", r["ci"][0], "{:.2f}")
+            put(f"Ic{tag}{w}{ct}Dhi", r["ci"][1], "{:.2f}"); put(f"Ic{tag}{w}{ct}Valid", r["valid"], "{}")
+            ref = r["reference"]
+            put(f"Ic{tag}{w}{ct}Ex", ref["abs_excess"]["median"], "{:.1f}")
+            put(f"Ic{tag}{w}{ct}ExLo", ref["abs_excess"]["ci"][0], "{:.1f}")
+            put(f"Ic{tag}{w}{ct}Abs", ref["abs_llm"]["median"], "{:.1f}"); put(f"Ic{tag}{w}{ct}Ref", ref["abs_ref"]["median"], "{:.1f}")
+            put(f"Ic{tag}{w}{ct}Sgn", ref["signed_llm"]["median"], "{:+.1f}")
+    r = d["crs"]["W4"]
+    put(f"Crs{tag}D", r["median"], "{:.2f}"); put(f"Crs{tag}Dlo", r["ci"][0], "{:.2f}"); put(f"Crs{tag}Dhi", r["ci"][1], "{:.2f}")
+    put(f"Crs{tag}Valid", r["valid"], "{}")
+    ref = r["reference"]
+    put(f"Crs{tag}Abs", ref["abs_llm"]["median"], "{:.1f}"); put(f"Crs{tag}Ref", ref["abs_ref"]["median"], "{:.1f}")
+    put(f"Crs{tag}Ex", ref["abs_excess"]["median"], "{:.1f}"); put(f"Crs{tag}ExLo", ref["abs_excess"]["ci"][0], "{:.1f}")
+    put(f"Crs{tag}ExHi", ref["abs_excess"]["ci"][1], "{:.1f}"); put(f"Crs{tag}Rho", ref["spearman"], "{:.2f}")
+    put(f"Crs{tag}Sgn", ref["signed_llm"]["median"], "{:+.1f}")
+    put(f"RuleHtwo{tag}", "met" if d["rule_H2_icsi"] else "not met", "{}")
+    put(f"RuleHfour{tag}", "met" if d["rule_H4_crs"] else "not met", "{}")
+
+
+for f, tag in (("d17_corpora.json", "P"), ("d19_corpora_3b.json", "T"), ("d19_corpora_half.json", "H")):
+    if load(f):
+        corpora(load(f), tag)
+for f, tag in (("d17_corpora_determinism.json", "P"), ("d19_3b_determinism.json", "T"), ("d19_half_determinism.json", "H")):
+    dd = load(f)
+    if dd:
+        put(f"CorpDet{tag}Mism", sum(c["mismatch_budgets"] for c in dd["columns"].values()), "{}")
+        put(f"CorpDet{tag}N", sum(c["n"] for c in dd["columns"].values()), "{}")
+
+
+def canon(d, tag):  # D18 (1.5B) and D19 (3B): canonical units
+    for col, ct in (("action_item", "Ac"), ("question", "Qu")):
+        v = d["validity"][col]
+        put(f"Cn{tag}Fone{ct}", v["canonical"]["f1"], "{:.3f}"); put(f"Cn{tag}FoneSeg{ct}", v["segments_manual"]["f1"], "{:.3f}")
+        put(f"Cn{tag}Ceil{ct}", v["ceiling_canonical"]["f1"], "{:.2f}")
+        put(f"Cn{tag}Keeps{ct}", "met" if v["keeps_validity"] else "not met", "{}")
+        r = d["drift"][col]
+        put(f"Cn{tag}WoneD{ct}", r["W1"]["median_D"], "{:.2f}"); put(f"Cn{tag}WoneAbs{ct}", r["W1"]["median_abs_pts"], "{:.1f}")
+        put(f"Cn{tag}WthreeD{ct}", r["W3"]["median_D"], "{:.3f}")
+        put(f"Cn{tag}WtwoD{ct}", r["W2"]["median_D"], "{:.2f}")
+        put(f"Cn{tag}WoneValid{ct}", r["W1"]["valid"], "{}")
+        put(f"Cn{tag}BoundMax{ct}", max(r[w]["max_D"] for w in ("W2", "E6_k2", "E6_k4", "E6_k8")), "{:.1f}")
+    c = d["cost"]
+    put(f"Cn{tag}Calls", f"{c['canonical_distinct_units']:,}", "{}")
+    put(f"Cn{tag}SegCalls", f"{c['per_version_segments']:,}", "{}")
+    put(f"Cn{tag}Tok", c["canonical_tokens"] / 1e6, "{:.2f}"); put(f"Cn{tag}SegTok", c["per_version_tokens"] / 1e6, "{:.2f}")
+    put(f"Cn{tag}CallRatio", c["per_version_segments"] / c["canonical_distinct_units"], "{:.1f}")
+    put(f"Cn{tag}TokRatio", c["per_version_tokens"] / c["canonical_tokens"], "{:.1f}")
+    put(f"Cn{tag}ReuseWone", 100 * d["reuse"]["w1old"]["share"], "{:.0f}")
+    put(f"Cn{tag}ReuseBound", 100 * min(d["reuse"][v]["share"] for v in ("placebo", "merge2", "merge4", "merge8")), "{:.0f}")
+    put(f"Cn{tag}Units", f"{d['reuse']['manual']['units']:,}", "{}")
+
+
+for f, tag in (("d18_canonical.json", "P"), ("d19_canonical_3b.json", "T"), ("d19_canonical_half.json", "H")):
+    if load(f):
+        canon(load(f), tag)
+
+
+ws = load("d18_wordsets.json")
+if ws:  # words that a diarizer version leaves out (midpoint in no turn), relative to the manual version
+    for v, tag in (("w1old", "Wone"), ("w3old", "Wthree")):
+        r = ws["versions"][v]
+        put(f"Drop{tag}", 100 * r["only_manual"] / r["manual_words"], "{:.1f}")
+        put(f"Drop{tag}N", f"{r['only_manual']:,}", "{}")
+    put("DropTotal", f"{ws['versions']['manual']['manual_words']:,}", "{}")
+    put("DropOthers", sum(ws["versions"][v]["only_manual"] + ws["versions"][v]["only_version"]
+                          for v in ("placebo", "merge2", "merge4", "merge8")), "{}")
+
 lines = ["% generated by paper/gen_numbers.py from reports/*.json -- do not edit",
          r"\providecommand{\missing}[1]{\textbf{\textcolor{red}{??#1}}}"]
 def minus(v):  # a leading hyphen prints as a hyphen in text; use a true minus (no macro is used inside math)

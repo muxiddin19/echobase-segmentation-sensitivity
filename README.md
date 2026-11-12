@@ -28,6 +28,11 @@ file itself is hash-locked, so its header is left unchanged.
 
 The AMI audio and annotations and the Wikipedia text are not redistributed; the scripts download them from their
 original sources; their licenses apply (AMI: see the AMI Meeting Corpus site; Wikipedia: CC BY-SA 3.0 and GFDL).
+The canonical-unit caches (`outputs/echobase/v2-canon*`, D18/D19) are keyed by the text of each unit, so they contain
+short spans of the AMI reference transcripts (AMI Meeting Corpus, CC BY 4.0). The second
+corpora of D17-C/D19 are not redistributed either; `scripts/fetch_d17.sh` downloads them and checks their SHA-256: the
+ICSI Meeting Corpus core NXT annotations (CC BY 4.0, https://groups.inf.ed.ac.uk/ami/icsi/) and the GovReport CRS test
+split (US government works, https://huggingface.co/datasets/launch/gov_report).
 
 ## Environment
 
@@ -67,6 +72,22 @@ run unless the STATUS.md header carries the freeze marker, which the released co
 Scoring is deterministic: `python -m echobase.e0_determinism --split eval --n 100 --out <file>` rescores held-out
 segments under several batch budgets and reports label mismatches (0 in our runs).
 
+## Post-submission analyses (D17-D19)
+
+The paper version uploaded before the deadline (Sec. X and the post-hoc paragraphs marked D17-D19) adds analyses whose
+rules were logged in `reports/deviations.md` before any code or result. Level 1 reproduces them from the caches:
+
+| Analysis | Code | Caches | Output |
+|---|---|---|---|
+| learned non-LLM scorer, TF-IDF + logistic regression on AMI train (D17-A, CPU) | `echobase/d17_learned.py`, then `explore_eval --partial`, `explore_signed`, `explore_gold`, the D14 comparison with `--cache v2-learned` | `v2-learned` | `reports/d17_learned_{fit,eval,signed,gold,oracle}.json` |
+| word-F1 ceiling of segment labels (D17-A, CPU) | `echobase/d17_ceiling.py` | all scorer caches | `reports/d17_ceiling.json` |
+| bf16 rerun noise vs segmentation drift (D17-B) | `scripts/d17b_bf16.sh` (GPU), `echobase/d17_bf16.py` | `v2-bf16-b3072`, `v2-bf16-b1024` | `reports/d17_bf16.json` |
+| second corpora: ICSI placebo and merges, GovReport CRS chunker (D17-C: 1.5B; D19: 3B and 0.5B) | `scripts/fetch_d17.sh`, `echobase/d17_corpora.py` (`check`, `icsi`, `crs` on GPU; `analyze`), `scripts/d17c_corpora.sh`, `scripts/d19_second.sh`, `scripts/d19_half.sh`; the scorer is set by `EB_MODEL` | `v2-d17`, `v2-d17-3b`, `v2-d17-0.5b` | `reports/d17_corpora.json`, `reports/d19_corpora_{3b,half}.json`, `reports/{d17_corpora,d19_3b,d19_half}_determinism.json` |
+| canonical units (`sec:canon`, `tab:canon`; D18: 1.5B; D19: 3B and 0.5B) | `echobase/d18_canonical.py` (`score` on GPU, `analyze` on CPU; `EB_MODEL`), `echobase/d18_wordsets.py` | `v2-canon`, `v2-canon-3b`, `v2-canon-0.5b` | `reports/d18_canonical.json`, `reports/d19_canonical_{3b,half}.json`, `reports/d18_wordsets.json` |
+
+The 3B scorer runs in fp32 split over two 12 GB cards (`--gpus 0,1`); 0.5B and 1.5B fit on one. Determinism checks
+(`check`) gave 0 of 600 label changes for each scorer. `d18_canonical analyze` needs several GB of RAM.
+
 ## Mapping from the paper to the code
 
 | Paper (LaTeX label; figure and table numbers follow float placement) | Code | Output |
@@ -75,7 +96,7 @@ segments under several batch budgets and reports label mismatches (0 in our runs
 | example figure (`fig:example`) | `paper/figs/example.py` | `paper/figs/example.tex` |
 | H1/H2/H4, drift-per-workload figure (`fig:drift`) | `echobase/confirm.py`, `paper/figs/drift.py` | `reports/confirmatory.{json,md}` |
 | E6 granularity figure (`fig:gran`) | `echobase/explore_eval.py`, `paper/figs/drift_all.py` | `reports/explore_eval.json` |
-| per-meeting figure (`fig:perunit`) | `paper/figs/per_unit.py` | from `reports/confirmatory.json` |
+| per-meeting figure (`fig:perunit`; not in the uploaded version) | `paper/figs/per_unit.py` | from `reports/confirmatory.json` |
 | all-queries table (`tab:all`), E4 | `echobase/explore_eval.py --model ...`, `paper/figs/drift_all.py` | `reports/explore_eval_model2.json` |
 | maintenance table (`tab:maint`), E5 | `echobase/e5_maintenance.py`, `paper/figs/maintenance.py` | `reports/e5_w{1,3}.json` |
 | word flips | `echobase/explore_flips.py` | `reports/explore_flips.json` |
@@ -83,7 +104,7 @@ segments under several batch budgets and reports label mismatches (0 in our runs
 | direction of drift (`sec:dir`, post-hoc, D5) | `echobase/explore_signed.py --model ...` | `reports/explore_signed_<model>.json` |
 | human-label table (`tab:gold`, post-hoc, D5) | `echobase/explore_gold.py --model ...`, `paper/figs/gold.py` | `reports/explore_gold_<model>.json` |
 | 3B model (post-hoc, D5) | `echobase/post_score.py` (check / ami / wiki), `echobase/explore_eval.py --model Qwen/Qwen2.5-3B-Instruct` | `reports/post_determinism_3b.json`, `reports/explore_eval_model3.json` |
-| scale figure (`fig:scale`, post-hoc, D5) | `echobase/run_diar_scale.py`, `scripts/scale_loop.sh`, `echobase/explore_scale.py`, `paper/figs/scale.py` | `reports/explore_scale.json` |
+| scale figure (`fig:scale`, post-hoc, D5; not in the uploaded version) | `echobase/run_diar_scale.py`, `scripts/scale_loop.sh`, `echobase/explore_scale.py`, `paper/figs/scale.py` | `reports/explore_scale.json` |
 | cross-host determinism | rescoring on a second server; `echobase/explore_crosshost.py` (1.5B) | `reports/post_crosshost_{0.5b,1.5b}.json` |
 | models table (`tab:models`), 7B and Phi (post-hoc, D6) | `echobase/post_score.py`, `echobase/explore_eval.py`, `paper/figs/models.py` | `reports/explore_eval_{7b,phi}.json`, `reports/post_determinism_{7b,phi}.json` |
 | models table, 14B (post-hoc, D9), cross-hardware label check | `echobase/post_score.py`, `scripts/d9_worker.sh`, `echobase/explore_eval.py`, `paper/figs/models.py` | `reports/explore_eval_14b.json`, `reports/post_determinism_14b{,_gp8}.json`, `reports/d9_crosshw_{ami_gp231,wiki_gp8}_vs_gpulab2.json`, `reports/d9_verify_gp231.json` |
@@ -96,8 +117,8 @@ segments under several batch budgets and reports label mismatches (0 in our runs
 | non-LLM reference scorers, series check (Sec. VII, post-hoc, D14, CPU) | `echobase/explore_oracle.py` | `reports/explore_oracle.json` |
 | 32B scorer (post-hoc, D15) | `echobase/post_score.py --cols`, `scripts/d15_gp146.sh`, `echobase/explore_eval.py --partial` | `reports/explore_eval_32b.json`, `reports/explore_{signed,gold}_Qwen2.5-32B-Instruct.json`, `reports/post_determinism_32b_gp146.json`, `reports/d15_env_check.json` |
 | aggregate certification (Sec. IX, post-hoc, D12, CPU) | `echobase/explore_aggcert.py` | `reports/explore_aggcert.json` |
-| replay scalability (`fig:scalability`, post-hoc, D11, CPU) | `echobase/explore_scalability.py`, `paper/figs/scalability.py` | `reports/explore_scalability.json` (wall times depend on the machine; cells, calls and shares are exact) |
+| replay scalability (`fig:scalability`, post-hoc, D11, CPU; figure not in the uploaded version) | `echobase/explore_scalability.py`, `paper/figs/scalability.py` | `reports/explore_scalability.json` (wall times depend on the machine; cells, calls and shares are exact) |
 | cost per workload (`tab:cost`, post-hoc, after review 4) | `echobase/explore_cost.py`, `echobase/throughput.py` (run times from the gpulab2 job journals), `paper/figs/cost.py` | `reports/explore_cost.json`, `reports/throughput.json`, `reports/tables/cost.csv` |
 
-Post-hoc analyses were added after the confirmatory analysis and are logged as deviations D5, D6 and D7 in
+Post-hoc analyses were added after the confirmatory analysis and are logged as deviations D5-D19 in
 `reports/deviations.md`. The level-1 script reproduces all of them from the caches.
