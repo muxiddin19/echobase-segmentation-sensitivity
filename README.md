@@ -1,4 +1,9 @@
-# Artifact: Same Words, Different Answers (ICDE 2027, EAB)
+# Artifact: Same Words, Different Answers
+
+**Status (2026-11-14).** The paper was submitted to the ICDE 2027 research track (Experiment, Analysis and Benchmark)
+and was withdrawn by the authors on 2026-11-14 for an administrative reason (a co-author's per-round submission
+limit). The withdrawal does not concern the results: this package and its numbers are unchanged from v1.3, and the
+work continues in an extended version. This release (v1.3.1) changes only this note and the metadata.
 
 This package reproduces every number, table and figure of the paper. It has two levels:
 

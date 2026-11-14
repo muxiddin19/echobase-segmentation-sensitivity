@@ -1,7 +1,7 @@
 {
   "title": "Same Words, Different Answers: Segmentation Sensitivity of LLM-Derived Views (artifact)",
   "upload_type": "software",
-  "description": "Code, preregistration, cached model outputs and scripts that regenerate every number, table and figure of the ICDE 2027 Experiment, Analysis and Benchmark submission 'Same Words, Different Answers: Segmentation Sensitivity of LLM-Derived Views'. Source corpora (AMI Meeting Corpus audio and annotations, Wikipedia text) are not redistributed; scripts download them.",
+  "description": "Code, preregistration, cached model outputs and scripts that regenerate every number, table and figure of the paper 'Same Words, Different Answers: Segmentation Sensitivity of LLM-Derived Views' (submitted to the ICDE 2027 Experiment, Analysis and Benchmark track; withdrawn by the authors on 2026-11-14 for an administrative reason, a co-author's submission limit; the work continues in an extended version). Code and results are unchanged from v1.3. Source corpora (AMI Meeting Corpus audio and annotations, Wikipedia text) are not redistributed; scripts download them.",
   "creators": [
     {"name": "Toshpulatov, Mukhiddin", "affiliation": "Gachon University", "orcid": "0000-0002-8819-852X"},
     {"name": "Lee, Wookey", "affiliation": "Inha University", "orcid": "0000-0001-8586-4577"}
